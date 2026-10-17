@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>TKO iMATOMs Client MKT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: sidebar app shell like the MKT Prospect platform; navy ground, amber marks bid timing, green/red for won/lost */
+:root{
+  --ground:#EDF0F2; --surface:#FFFFFF; --sunk:#F5F7F9; --ink:#16212C; --muted:#56636F; --line:#D8DEE4;
+  --navy:#1F4E78; --navy-d:#163A5A; --navy-l:#E3ECF5; --amber:#9A5B00; --amber-l:#FFF1DC; --red:#A63A1C; --red-l:#FBE7E1;
+  --green:#226B45; --green-l:#E1F2E8; --teal:#14605F; --teal-l:#DFF0F0; --on-pri:#FFFFFF; --bar2:#9FB6CC;
+  --font:'IBM Plex Sans Thai','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#11171D; --surface:#1A222B; --sunk:#151C23; --ink:#E7ECF1; --muted:#9AA7B4; --line:#2C3743;
+  --navy:#7DB0E0; --navy-d:#A8CBEC; --navy-l:#1F3346; --amber:#F2B45A; --amber-l:#3A2C14; --red:#F08E70; --red-l:#3B2019;
+  --green:#7CCB9D; --green-l:#17322A; --teal:#7FD3CF; --teal-l:#163332; --on-pri:#0F1A24; --bar2:#3E5A75; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ground:#11171D; --surface:#1A222B; --sunk:#151C23; --ink:#E7ECF1; --muted:#9AA7B4; --line:#2C3743;
+  --navy:#7DB0E0; --navy-d:#A8CBEC; --navy-l:#1F3346; --amber:#F2B45A; --amber-l:#3A2C14; --red:#F08E70; --red-l:#3B2019;
+  --green:#7CCB9D; --green-l:#17322A; --teal:#7FD3CF; --teal-l:#163332; --on-pri:#0F1A24; --bar2:#3E5A75; color-scheme:dark;
+}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+.login{max-width:420px;margin:12vh auto;padding:30px}
+.otp{font-size:24px;letter-spacing:8px;text-align:center}
+.urow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 110px 90px 40px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+@media (max-width:700px){.urow{grid-template-columns:1fr 1fr}}
+.sync{display:inline-flex;align-items:center;gap:6px}
+.spin{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--navy);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--font);font-variant-numeric:tabular-nums}
+a{color:var(--navy)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh}
+.brand{padding:4px 10px 18px;line-height:1.25}
+.brand b{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--navy)}
+.brand span{display:block;font-weight:700;font-size:17px}
+.brand small{display:block;font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 12px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:14.5px}
+.nav a:hover{background:var(--sunk)}
+.nav a[aria-current="page"]{background:var(--navy-l);color:var(--navy);font-weight:600}
+.nav svg{width:18px;height:18px;flex:none}
+.badge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;font-size:12px;padding:0 7px;line-height:20px;font-weight:600}
+.side-foot{margin-top:auto;font-size:12.5px;color:var(--muted);padding:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.main{min-width:0;padding-block:26px 80px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+.topline{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.topline h1{margin:0;font-size:24px;line-height:1.25;font-weight:700;flex:1 1 auto}
+.sub{color:var(--muted);font-size:13.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:var(--on-pri);font-weight:600}
+.btn.pri:hover{background:var(--navy-d)}
+.btn.sm{min-height:32px;padding:0 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h2{margin:0 0 12px;font-size:15.5px;font-weight:700}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ph h2{margin:0}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--on-pri)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.tag.hc{background:var(--teal-l);color:var(--teal)}
+.tag.am{background:var(--amber-l);color:var(--amber)}
+.tag.nv{background:var(--navy-l);color:var(--navy)}
+.tag.gr{background:var(--green-l);color:var(--green)}
+.tag.rd{background:var(--red-l);color:var(--red)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:12px;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-contacted,.st-target{background:var(--navy-l);color:var(--navy)}
+.st-survey{background:var(--teal-l);color:var(--teal)}
+.st-proposal,.st-bidding,.st-negotiation{background:var(--amber-l);color:var(--amber)}
+.st-won{background:var(--green-l);color:var(--green)}
+.st-lost{background:var(--red-l);color:var(--red)}
+.in{width:100%;min-height:40px;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14.5px}
+textarea.in{padding:9px 11px;min-height:76px;resize:vertical}
+.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;min-width:0}
+.hint{font-size:12.5px;color:var(--muted);font-weight:400}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;font-size:12.5px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--sunk)}
+th button{all:unset;cursor:pointer}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--sunk)}
+.num{text-align:right}
+.mono{font-family:var(--mono);font-size:12.5px}
+.muted{color:var(--muted)}
+.late{color:var(--red);font-weight:600}
+.empty{padding:32px 18px;text-align:center;color:var(--muted)}
+.notice{background:var(--amber-l);color:var(--amber);font-size:13px;padding:8px 12px;border-radius:8px;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:8px;font-size:14px;z-index:50}
+dialog{border:none;border-radius:14px;padding:0;width:min(620px,calc(100vw - 32px));max-height:calc(100vh - 40px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,20,30,.45)}
+.dlg{padding:22px;display:flex;flex-direction:column;gap:14px}
+.dlg h2{margin:0;font-size:18px}
+.dlg-foot{display:flex;justify-content:flex-end;gap:8px}
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.kpi{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi:hover{border-color:var(--navy)}
+.kpi:focus-visible{outline:2px solid var(--navy)}
+.kpi b{font-size:28px;line-height:1.15;font-weight:700}
+.kpi b small{font-size:13px;font-weight:600;color:var(--muted)}
+.kpi span{font-size:13px;color:var(--muted)}
+.kpi.hot{background:var(--amber-l);border-color:var(--amber)}
+.kpi.hot b,.kpi.hot span{color:var(--amber)}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:14px;align-items:start}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.hz{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.hzc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:12px 10px;border-right:1px solid var(--line);height:220px}
+.hzc:last-child{border-right:none}
+.hzc:hover{background:var(--sunk)}
+.hzc:focus-visible{outline:2px solid var(--navy);outline-offset:-2px}
+.hzc .stk{display:flex;flex-direction:column-reverse;width:100%;border-radius:4px 4px 0 0;overflow:hidden;min-height:3px}
+.hzc .stk i{display:block;background:var(--bar2)}
+.hzc .stk i.h{background:var(--navy)}
+.hzc b{font-size:24px;line-height:1}
+.hzc .v{font-size:12px;color:var(--muted)}
+.hzc .y{font-size:13px;font-weight:600}
+.hzc.now{background:var(--amber-l)}
+.hzc.now .y,.hzc.now b{color:var(--amber)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.brow{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr) 44px;align-items:center;gap:10px;font-size:13.5px;padding:4px;border-radius:6px}
+.brow:hover{background:var(--sunk)}
+.brow:focus-visible{outline:2px solid var(--navy)}
+.brow .tr{height:14px;background:var(--sunk);border-radius:3px;overflow:hidden;display:flex}
+.brow .tr i{display:block;height:100%;background:var(--navy)}
+.brow .tr i.b{background:var(--bar2)}
+.brow em{font-style:normal;text-align:right;font-weight:600}
+.split{display:flex;height:16px;border-radius:4px;overflow:hidden;margin:6px 0 10px}
+.split i{display:block;height:100%}
+.hot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;padding:9px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.hot:last-child{border-bottom:none}
+.hot .nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hot .sc{grid-row:span 2;align-self:center;font-size:20px;font-weight:700;color:var(--navy);text-align:right;line-height:1}
+.hot .sc small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.fu{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;align-items:start}
+.fu:last-child{border-bottom:none}
+.fu .d{font-weight:600}
+.fu .m{display:block;font-size:12.5px;color:var(--muted)}
+/* filters */
+.fpanel{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.frow{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center}
+.frow .lbl{font-size:12.5px;font-weight:600;color:var(--muted);min-width:84px}
+.resbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.resbar .count{font-size:17px;font-weight:700;margin-right:auto}
+.scorebar{display:inline-flex;align-items:center;gap:6px}
+.scorebar i{display:block;width:42px;height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.scorebar i u{display:block;height:100%;background:var(--navy)}
+/* board */
+.boardwrap{overflow-x:auto;padding-bottom:8px}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:12px;min-width:max-content}
+.bcol{background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:200px;width:250px}
+.bcol h3{margin:0;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bcol h3 small{font-weight:600;color:var(--muted)}
+.bcol .val{font-size:12px;color:var(--muted);margin-top:-6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.card a.nm{font-weight:600;font-size:13.5px;text-decoration:none;color:var(--ink);line-height:1.35}
+.card a.nm:hover{color:var(--navy);text-decoration:underline}
+.card .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.card select{min-height:30px;font-size:12.5px;padding:0 6px}
+.card .soon{color:var(--amber);font-weight:600}
+/* detail */
+.dhead{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.dhead h1{margin:0 0 6px;font-size:24px;line-height:1.25}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13.5px;color:var(--muted)}
+.score{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:92px;padding:10px;border-radius:var(--r);background:var(--navy);color:var(--on-pri)}
+.score b{font-size:30px;line-height:1}
+.score span{font-size:12px;opacity:.9}
+.dlay{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:14px;align-items:start}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 18px;margin:0}
+.kv div{display:flex;flex-direction:column;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.kv dt{font-size:12.5px;color:var(--muted)}
+.kv dd{margin:0}
+.est{font-size:11px;font-weight:600;color:var(--amber);margin-left:4px}
+.timeline{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.tlr{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.tlr:last-child{border-bottom:none}
+.tlr b{font-family:var(--mono);font-size:13px}
+.tlr.next{background:var(--amber-l);margin:0 -10px;padding:8px 10px;border-radius:6px;border-bottom:none}
+.tlr.past{color:var(--muted)}
+.brk{display:grid;grid-template-columns:minmax(0,1fr) 60px 42px;gap:8px;align-items:center;font-size:13.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+.brk:last-child{border-bottom:none}
+.brk .mb{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.brk .mb i{display:block;height:100%;background:var(--navy)}
+.brk b{text-align:right}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{position:relative;padding:0 0 14px 20px;font-size:13.5px}
+.tl li::before{content:"";position:absolute;left:5px;top:8px;bottom:-4px;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl li::after{content:"";position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--navy)}
+.tl .when{font-size:12px;color:var(--muted)}
+.ctc{padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;display:flex;justify-content:space-between;gap:8px}
+.ctc:last-child{border-bottom:none}
+.spark{width:100%;height:auto;display:block}
+.spark text{fill:var(--muted);font:11px var(--font)}
+.spark .gl{stroke:var(--line);stroke-width:1}
+.spark .rb{fill:var(--navy)}
+.spark .gb{fill:var(--bar2)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.wrow{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:8px;align-items:center;font-size:13.5px;padding:4px 0}
+.wrow .in{min-height:34px;text-align:right}
+@media (max-width:1100px){.dgrid,.dlay{grid-template-columns:1fr}}
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px));z-index:10;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line)}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:11;background:var(--surface)}
+  .brand{padding:0 8px;white-space:nowrap}.brand span,.brand small{display:none}
+  .nav{flex-direction:row}.nav a{white-space:nowrap;padding:0 10px}
+  .side-foot{display:none}
+  .main{padding-block:18px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .hz{grid-template-columns:repeat(3,minmax(0,1fr))}.hzc{height:160px;border-bottom:1px solid var(--line)}
+}
+@media (max-width:520px){.nav a span{display:none}.fu{grid-template-columns:76px minmax(0,1fr)}.fu>.tag{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}.spin{animation:none}}
+</style>
+</head>
+<body>
+<div id="root"><div class="empty">กำลังโหลด TKO iMATOMs Client MKT…</div></div>
+<dialog id="dlg"></dialog>
+
+<script>
+/* ============ ตั้งค่า ============ */
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
+/* ================================ */
+
+/* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
+   c=รหัส n=ชื่อ s=กลุ่ม st=พนักงาน ph=ค่าต่อหัว a=พื้นที่ ts=THB/sqm rv=รายได้/เดือน gm=GM/เดือน m/g=รายเดือน ม.ค.–ก.ย. pj=งานโปรเจกต์ f/l=เดือนแรก/สุดท้าย y/yg=YTD z=สถานะ 2021 */
+let REF = [];
+let REFIX = {};
+
+const STAGES = [['target', 'ตั้งเป้า'], ['contacted', 'ติดต่อแล้ว'], ['survey', 'สำรวจไซต์'], ['proposal', 'เสนอราคา'], ['bidding', 'ยื่นประมูล'], ['negotiation', 'ต่อรอง'], ['won', 'ได้งาน'], ['lost', 'ไม่ได้งาน']];
+const STG = Object.fromEntries(STAGES);
+const SOURCING = ['Outsource', 'In-house', 'Hybrid', 'ไม่ทราบ'];
+const SCOPES = ['Hard service (ช่าง/วิศวกรรม)', 'Soft service / ผสม', 'Integrated FM', 'คิดตามพื้นที่ (ไม่ระบุ)', 'ไม่ทราบ'];
+const SEGS = ['Healthcare', 'Education', 'Public Sector', 'Corporate (Office Buildings)', 'Manufacturing (Factories)', 'Residential', 'Retails (shopping malls)'];
+const SEG_TH = { 'Healthcare': 'โรงพยาบาล / Healthcare', 'Education': 'การศึกษา', 'Public Sector': 'ภาครัฐ', 'Corporate (Office Buildings)': 'อาคารสำนักงาน', 'Manufacturing (Factories)': 'โรงงาน', 'Residential': 'ที่พักอาศัย', 'Retails (shopping malls)': 'ค้าปลีก' };
+const Z_TH = { active: 'ยังใช้บริการ ก.ย. 2021', starting: 'เริ่มสัญญาใหม่ Q4 2021', ended: 'หลุดจาก AFM ระหว่างปี 2021', dormant: 'ไม่มีรายได้ปี 2021' };
+const MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const CFG0 = { term: 3, prep: 6, owners: ['MKT-1', 'MKT-2', 'MKT-3'], w: { seg: 30, time: 25, size: 20, scope: 15, weak: 10 },
+  segW: { 'Healthcare': 100, 'Education': 60, 'Public Sector': 60, 'Corporate (Office Buildings)': 50, 'Manufacturing (Factories)': 50, 'Residential': 30, 'Retails (shopping malls)': 30 } };
+const HZ_END = 2031;
+
+/* ===== state ===== */
+const S = { token: null, user: null, live: true, me: null, over: {}, logs: [], actions: [], users: [], cfg: JSON.parse(JSON.stringify(CFG0)), names: {}, busy: 0,
+  f: { q: '', seg: [], src: [], stage: [], year: '', hc: false }, sort: { k: 'score', d: -1 }, bf: { hc: true, year: '' } };
+try { const sv = JSON.parse(localStorage.getItem('tko_filters')); if (sv) Object.assign(S.f, sv); } catch (e) { }
+
+/* ===== helpers ===== */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const ym = s => s ? s.slice(0, 7) : '';
+const addM = (s, n) => { const [y, m] = s.split('-').map(Number); const t = y * 12 + (m - 1) + n; return Math.floor(t / 12) + '-' + pad(t % 12 + 1); };
+const mDiff = (a, b) => { const [ay, am] = a.split('-').map(Number), [by, bm] = b.split('-').map(Number); return (by - ay) * 12 + (bm - am); };
+const fmtYM = s => { if (!s) return ''; const [y, m] = s.split('-'); return MON[+m - 1] + ' ' + y; };
+const fmtD = s => s ? s.slice(0, 10).split('-').reverse().join('/') : '';
+const fmtN = n => (n == null || n === '' || isNaN(n)) ? '' : Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+const fmtM = n => { n = +n || 0; return n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + ' ลบ.' : n >= 1e3 ? Math.round(n / 1e3) + 'K' : String(Math.round(n)); };
+const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : null;
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
+const ICON = {
+  dash: '<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  board: '<path d="M3 4h18v16H3zM9 4v16M15 4v16"/>',
+  bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
+};
+const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+const stTag = s => s ? `<span class="st st-${s}">${esc(STG[s] || s)}</span>` : '';
+const segTag = s => `<span class="tag ${s === 'Healthcare' ? 'hc' : ''}">${esc(SEG_TH[s] || s || '-')}</span>`;
+const srcTag = s => `<span class="tag ${s === 'Outsource' ? 'nv' : s === 'In-house' ? 'gr' : s === 'Hybrid' ? 'am' : ''}">${esc(s)}</span>`;
+const nameOf = em => { if (!em) return ''; const u = S.users.find(x => x.email === em); return (u && u.name) || em; };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } } };
+
+/* ===== site model ===== */
+function derive(r) {
+  const z = r.z, ph = r.ph || 0;
+  const scope = ph >= 22000 ? SCOPES[0] : ph > 0 ? SCOPES[1] : r.a ? SCOPES[3] : SCOPES[4];
+  let start = null;
+  if (z === 'active') start = '2021-' + pad((r.f || 0) + 1);
+  else if (z === 'starting') start = '2021-10';
+  else if (z === 'ended') start = addM('2021-' + pad(r.l + 1), 1);
+  return {
+    code: r.c, name: r.n, seg: r.s, ref: r,
+    sourcing: z === 'active' || z === 'starting' ? 'Outsource' : 'ไม่ทราบ',
+    vendor: z === 'active' || z === 'starting' ? 'AFM (Atalian) · ข้อมูลปี 2021' : z === 'ended' ? 'ไม่ทราบ (เลิกใช้ AFM ปี 2021)' : '',
+    scope, start, startEst: true, term: null, expiry: '', value: r.rv > 0 ? r.rv : null,
+    stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: ''
+  };
+}
+function site(code) {
+  const r = REFIX[code], o = S.over[code] || {};
+  const base = r ? derive(r) : { code, ref: null, sourcing: 'ไม่ทราบ', vendor: '', scope: 'ไม่ทราบ', start: null, startEst: false, term: null, expiry: '', value: null, stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: '' };
+  const s = Object.assign({}, base, o, { code, ref: r || null });
+  if (o.start !== undefined && o.start !== base.start) s.startEst = false;
+  s.termY = +s.term || +S.cfg.term || 3;
+  s.bids = bidsOf(s); s.next = s.bids.find(b => b.exp >= ym(today())) || null;
+  s.monthsTo = s.next ? mDiff(ym(today()), s.next.exp) : null;
+  s.inPrep = s.next && s.next.prep <= ym(today());
+  s.sc = scoreOf(s); s.score = s.sc.total;
+  return s;
+}
+function allCodes() { return [...new Set([...REF.map(r => r.c), ...Object.keys(S.over).filter(k => !S.over[k]._deleted)])]; }
+function allSites() { return allCodes().filter(c => !(S.over[c] && S.over[c]._deleted)).map(site).filter(s => s.name); }
+/* รอบสัญญา: ถ้ารู้วันหมดสัญญาจริงใช้เป็นจุดอ้างอิง ไม่งั้นคาดจากเดือนเริ่ม + อายุสัญญา */
+function bidsOf(s) {
+  const out = [], T = s.termY * 12, prep = +S.cfg.prep || 6;
+  let anchor = null, k0 = 1;
+  if (s.expiry) { anchor = ym(s.expiry); k0 = 0; } else if (s.start) anchor = ym(s.start);
+  if (!anchor) return out;
+  for (let k = k0; k < 40; k++) {
+    const exp = addM(anchor, T * k); if (+exp.slice(0, 4) > HZ_END) break;
+    out.push({ exp, prep: addM(exp, -prep), est: !s.expiry || k > 0 });
+  }
+  return out;
+}
+function scoreOf(s) {
+  const w = S.cfg.w, r = s.ref;
+  const seg = ((S.cfg.segW[s.seg] ?? 40) / 100);
+  const mt = s.monthsTo, time = mt == null ? 0 : mt <= 12 ? 1 : mt <= 24 ? .7 : mt <= 36 ? .45 : mt <= 60 ? .2 : 0;
+  const v = +s.value || 0, size = v >= 1e6 ? 1 : v >= 5e5 ? .75 : v >= 2.5e5 ? .5 : v > 0 ? .25 : 0;
+  const scope = /^Hard|^Integrated/.test(s.scope) ? 1 : /^Soft|พื้นที่/.test(s.scope) ? .5 : .3;
+  let weak = .3;
+  if (s.sourcing === 'In-house') weak = .6;
+  else if (r && r.z === 'ended') weak = 1;
+  else if (r && r.y > 0) { const g = r.yg / r.y; weak = g < .15 ? .8 : g < .25 ? .5 : .2; }
+  const part = { seg: seg * w.seg, time: time * w.time, size: size * w.size, scope: scope * w.scope, weak: weak * w.weak };
+  const max = w.seg + w.time + w.size + w.scope + w.weak;
+  const total = Math.round(Object.values(part).reduce((a, b) => a + b, 0) / (max || 1) * 100);
+  return { part, total };
+}
+
+/* ===== persistence (Apps Script API) ===== */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function getJSON(url) {
+  let last;
+  for (let i = 0; i < 4; i++) {
+    if (i) await sleep(1000 * i);
+    try { const r = await fetch(url, { cache: 'no-store' }); if (r.ok) return await r.json(); last = new Error('เชื่อมต่อ API ไม่ได้ (HTTP ' + r.status + ')'); }
+    catch (e) { last = new Error('ไม่มีอินเทอร์เน็ต หรือเชื่อมต่อ API ไม่ได้'); }
+  }
+  throw last;
+}
+async function api(action, payload) {
+  let j;
+  if (['bootstrap', 'otp_request', 'otp_verify', 'logout'].includes(action)) {
+    j = await getJSON(API_URL + '?action=' + action + (S.token ? '&token=' + encodeURIComponent(S.token) : '') + (payload ? '&payload=' + encodeURIComponent(JSON.stringify(payload)) : ''));
+  } else {
+    try {
+      const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, token: S.token, payload }) });
+      j = await r.json();
+    } catch (e) {
+      // สำรอง: ส่งแบบ GET ถ้าข้อมูลสั้นพอ
+      const q = encodeURIComponent(JSON.stringify(payload));
+      if (q.length > 6000) throw new Error('บันทึกไม่สำเร็จ: เชื่อมต่อ API ไม่ได้');
+      j = await getJSON(API_URL + '?action=' + action + '&token=' + encodeURIComponent(S.token) + '&payload=' + q);
+    }
+  }
+  if (!j.ok) { if (String(j.error).startsWith('AUTH')) signOut(j.error); throw new Error(String(j.error).replace(/^AUTH:\s*/, '')); }
+  return j;
+}
+function applyData(d) {
+  if (d.ref) { REF = d.ref; REFIX = Object.fromEntries(REF.map(r => [r.c, r])); }
+  const o = {}; (d.sites || []).forEach(s => { if (s.code) o[s.code] = s; }); S.over = o;
+  S.logs = d.logs || []; S.actions = d.actions || []; S.users = d.users || [];
+  S.cfg = Object.assign(JSON.parse(JSON.stringify(CFG0)), d.config || {});
+}
+/** บันทึกเบื้องหลังตามลำดับ: แสดงผลทันที แล้วส่งขึ้น Sheet */
+const Q = []; let qBusy = false;
+function enqueue(action, payload, msg) {
+  return new Promise(res => { Q.push({ action, payload, msg, res }); syncBadge(); qRun(); });
+}
+async function qRun() {
+  if (qBusy || !Q.length) return; qBusy = true;
+  const job = Q[0];
+  try { const j = await api(job.action, job.payload); Q.shift(); if (!Q.length) applyData(j.data); if (job.msg) toast(job.msg); job.res(true); }
+  catch (e) { Q.shift(); toast('บันทึกไม่สำเร็จ: ' + e.message); job.res(false); try { applyData((await api('bootstrap')).data); } catch (x) { } }
+  qBusy = false; syncBadge(); if (!Q.length) render(); qRun();
+}
+function syncBadge() { const el = $('#sync'); if (el) el.innerHTML = Q.length ? '<span class="sync"><span class="spin" aria-hidden="true"></span>กำลังบันทึก ' + Q.length + ' รายการ…</span>' : 'บันทึกลง Google Sheet แล้ว'; }
+window.addEventListener('beforeunload', e => { if (Q.length) { e.preventDefault(); e.returnValue = ''; } });
+
+async function saveSite(code, patch, msg) {
+  const cur = Object.assign({}, S.over[code] || {}, patch, { updatedAt: new Date().toISOString(), updatedBy: S.me || '' });
+  S.over[code] = cur; render();
+  await enqueue('saveSite', { code, patch }, msg);
+}
+async function addLog(code, type, text) {
+  S.logs.push({ id: 'tmp' + Date.now(), site: code, type, text, at: new Date().toISOString(), by: S.me }); render();
+  await enqueue('addLog', { site: code, type, text });
+}
+async function addAction(code, due, msg, owner) {
+  S.actions.push({ id: 'tmp' + Date.now(), site: code, due, msg, owner: owner || '', status: 'open', at: new Date().toISOString(), by: S.me }); render();
+  await enqueue('addAction', { site: code, due, msg, owner }, 'ตั้ง Follow-up แล้ว');
+}
+async function setAction(id, patch) {
+  const a = S.actions.find(x => x.id === id); if (!a) return;
+  if (String(id).startsWith('tmp')) { toast('รอบันทึกรายการนี้เสร็จก่อน แล้วลองอีกครั้ง'); return; }
+  Object.assign(a, patch); render();
+  await enqueue('setAction', { id, patch });
+}
+async function saveCfg(cfg) { S.cfg = cfg; render(); await enqueue('saveCfg', { config: cfg }, 'บันทึกการตั้งค่าแล้ว'); }
+async function saveUsers(users) { S.users = users; render(); await enqueue('saveUsers', { users }, 'บันทึกผู้ใช้แล้ว'); }
+async function refresh(quiet) {
+  if (Q.length || !S.token) return;
+  try { const j = await api('bootstrap'); if (Q.length) return; applyData(j.data); S.user = j.user; render(); if (!quiet) toast('อัปเดตข้อมูลล่าสุดแล้ว'); } catch (e) { if (!quiet) toast(e.message); }
+}
+let _lastRefresh = Date.now();
+document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - _lastRefresh > 120000) { _lastRefresh = Date.now(); refresh(true); } });
+
+/* ===== login (OTP ทางอีเมล) ===== */
+function signOut(msg) { S.token = null; store.set('tko_token', null); showLogin(msg); }
+function showLogin(msg, step, email) {
+  email = email || store.get('tko_email') || '';
+  const err = msg ? `<div class="notice" style="margin-bottom:12px">${esc(String(msg).replace(/^AUTH:\s*/, ''))}</div>` : '';
+  $('#root').innerHTML = `<div class="panel login"><div class="brand" style="padding:0 0 14px"><b>TKO · iMATOMs</b><span>Client MKT</span></div>
+    <h1 style="margin:0 0 4px;font-size:20px">เข้าสู่ระบบ</h1>
+    ${step === 'code'
+      ? `<p class="sub" style="margin:0 0 16px">ส่งรหัส 6 หลักไปที่ <b>${esc(email)}</b> แล้ว ใช้ได้ 10 นาที</p>${err}
+        <form id="lf" style="display:flex;flex-direction:column;gap:12px"><label class="f" for="lcode">รหัสจากอีเมล<input class="in otp" id="lcode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label><button class="btn pri">ยืนยัน</button>
+        <div style="display:flex;justify-content:space-between"><button type="button" class="btn ghost sm" id="lback">เปลี่ยนอีเมล</button><button type="button" class="btn ghost sm" id="lresend">ส่งรหัสใหม่</button></div></form>
+        <p class="hint" style="margin:12px 0 0">ไม่เจออีเมล ลองดูในโฟลเดอร์ Spam</p>`
+      : `<p class="sub" style="margin:0 0 16px">ระบบจะส่งรหัสเข้าสู่ระบบไปที่อีเมลที่ได้รับสิทธิ์</p>${err}
+        <form id="lf" style="display:flex;flex-direction:column;gap:12px"><label class="f" for="lemail">อีเมล<input class="in" id="lemail" name="email" type="email" autocomplete="email" value="${esc(email)}"></label><button class="btn pri">ส่งรหัสเข้าสู่ระบบ</button></form>`}
+  </div>`;
+  const f = $('#lf'); f.querySelector('input').focus();
+  if (step === 'code') {
+    $('#lback').onclick = () => showLogin('', 'email');
+    $('#lresend').onclick = async () => { try { await api('otp_request', { email }); toast('ส่งรหัสใหม่แล้ว'); } catch (e) { showLogin(e.message, 'code', email); } };
+  }
+  f.onsubmit = async ev => {
+    ev.preventDefault(); const b = f.querySelector('.btn.pri'); if (b.disabled) return; b.disabled = true; b.textContent = 'กำลังดำเนินการ…';
+    try {
+      if (step === 'code') { const j = await api('otp_verify', { email, code: f.elements.code.value }); S.token = j.token; store.set('tko_token', j.token); boot(); }
+      else { const em = f.elements.email.value.trim().toLowerCase(); if (!em) throw new Error('กรุณาใส่อีเมล'); await api('otp_request', { email: em }); store.set('tko_email', em); showLogin('', 'code', em); }
+    } catch (e) { showLogin(e.message, step, step === 'code' ? email : f.elements.email.value); }
+  };
+}
+async function boot() {
+  if (!API_URL) { $('#root').innerHTML = '<div class="panel login"><h1 style="font-size:19px;margin:0 0 8px">ยังไม่ได้ตั้งค่า</h1><p>ใส่ URL ของ Apps Script Web App ในตัวแปร API_URL ที่ส่วนบนของไฟล์ index.html</p></div>'; return; }
+  S.token = S.token || store.get('tko_token');
+  if (!S.token) { showLogin(); return; }
+  $('#root').innerHTML = '<div class="empty">กำลังโหลดข้อมูล…</div>';
+  try { const j = await api('bootstrap'); applyData(j.data); S.user = j.user; S.me = j.user.email; render(); }
+  catch (e) { if (S.token) $('#root').innerHTML = `<div class="panel login"><div class="notice">โหลดข้อมูลไม่สำเร็จ: ${esc(e.message)}</div><button class="btn" style="margin-top:12px" onclick="boot()">ลองอีกครั้ง</button></div>`; }
+}
+
+/* ===== shell ===== */
+const NAV = [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell'], ['settings', 'ตั้งค่า', 'gear']];
+function shell(page, html) {
+  const od = S.actions.filter(a => a.status === 'open' && a.due < today()).length;
+  const nav = NAV.map(([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`).join('');
+  const foot = `<div><b style="color:var(--ink)">${esc((S.user && S.user.name) || '')}</b><br>${esc((S.user && S.user.email) || '')} · ${esc((S.user && S.user.role) || '')}</div><div id="sync">${Q.length ? '' : 'บันทึกลง Google Sheet แล้ว'}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="refresh">รีเฟรชข้อมูล</button><button class="btn sm ghost" data-act="logout">ออกจากระบบ</button></div>`;
+  $('#root').innerHTML = `<div class="app"><aside class="side"><div class="brand"><b>TKO · iMATOMs</b><span>Client MKT</span><small>FM Engineering &amp; Hard Service</small></div><nav class="nav" aria-label="เมนูหลัก">${nav}</nav><div class="side-foot">${foot}<div>ข้อมูลอ้างอิง: P&amp;L AFM ม.ค.–ก.ย. 2021</div></div></aside><main class="main" id="main">${html}</main></div>`;
+}
+
+/* ===== dashboard ===== */
+function vDash() {
+  const A = allSites(), t = ym(today()), y0 = +t.slice(0, 4);
+  const hc = A.filter(s => s.seg === 'Healthcare');
+  const by = { Outsource: 0, 'In-house': 0, Hybrid: 0, 'ไม่ทราบ': 0 }; A.forEach(s => by[s.sourcing] = (by[s.sourcing] || 0) + 1);
+  const verified = A.filter(s => s.verified).length;
+  // horizon: นับรอบประมูลที่หมดสัญญาในแต่ละปี (ไซต์เดียวมีได้หลายรอบ)
+  const cols = []; for (let y = y0; y <= HZ_END; y++) cols.push(y);
+  const ev = A.flatMap(s => s.bids.filter(b => b.exp >= t).map(b => ({ s, b, y: +b.exp.slice(0, 4) })));
+  const colData = cols.map(y => { const e = ev.filter(x => x.y === y); const h = e.filter(x => x.s.seg === 'Healthcare'); return { y, n: e.length, h: h.length, v: e.reduce((a, x) => a + (+x.s.value || 0), 0), hv: h.reduce((a, x) => a + (+x.s.value || 0), 0) }; });
+  const mx = Math.max(1, ...colData.map(c => c.n));
+  const hz = colData.map(c => `<button class="hzc ${c.y === 2027 ? 'now' : ''}" data-act="goYear" data-v="${c.y}" aria-label="หมดสัญญาปี ${c.y} ${c.n} ไซต์"><b>${c.n}</b><span class="v">Healthcare ${c.h} · ${fmtM(c.v)}/ด.</span><span class="stk" style="height:${Math.max(3, c.n / mx * 110)}px"><i class="h" style="flex:${c.h}"></i><i style="flex:${c.n - c.h}"></i></span><span class="y">${c.y}${c.y === y0 ? ' (เหลือปีนี้)' : ''}</span></button>`).join('');
+  const b27 = ev.filter(x => x.y === 2027), b27h = b27.filter(x => x.s.seg === 'Healthcare');
+  const prepNow = A.filter(s => s.inPrep);
+  // segment bars
+  const segRows = SEGS.map(g => { const ss = A.filter(s => s.seg === g); return { g, n: ss.length, v: ss.reduce((a, s) => a + (+s.value || 0), 0) }; }).filter(x => x.n);
+  const vmax = Math.max(1, ...segRows.map(x => x.v));
+  const segH = segRows.map(x => `<button class="brow" data-act="goSeg" data-v="${esc(x.g)}"><span>${esc(SEG_TH[x.g])} <span class="hint">${x.n}</span></span><span class="tr"><i class="${x.g === 'Healthcare' ? '' : 'b'}" style="width:${x.v / vmax * 100}%"></i></span><em>${fmtM(x.v)}</em></button>`).join('');
+  const tot = A.length || 1, col = { Outsource: 'var(--navy)', 'In-house': 'var(--green)', Hybrid: 'var(--amber)', 'ไม่ทราบ': 'var(--line)' };
+  const split = `<div class="split" role="img" aria-label="สัดส่วนรูปแบบการจ้าง">${SOURCING.map(k => `<i style="width:${by[k] / tot * 100}%;background:${col[k]}"></i>`).join('')}</div><div class="legend">${SOURCING.map(k => `<button class="chip" data-act="goSrc" data-v="${esc(k)}"><i style="background:${col[k]};width:10px;height:10px;border-radius:2px;display:inline-block"></i>${esc(k)} <b>${by[k]}</b></button>`).join('')}</div>`;
+  const hot = A.filter(s => !['won', 'lost'].includes(s.stage)).sort((a, b) => b.score - a.score).slice(0, 8);
+  const hotH = hot.map(s => `<a class="hot" href="#site-${esc(s.code)}"><span class="nm">${esc(s.name)}</span><span class="sc">${s.score}<small>คะแนน</small></span><span class="tags">${segTag(s.seg)}${s.next ? `<span class="tag ${s.monthsTo <= 12 ? 'am' : ''}">ประมูล ${fmtYM(s.next.exp)}</span>` : '<span class="tag">ยังไม่ทราบรอบสัญญา</span>'}${s.value ? `<span class="tag">${fmtM(s.value)}/ด.</span>` : ''}</span></a>`).join('') || '<div class="empty">ยังไม่มีข้อมูล</div>';
+  const pend = S.actions.filter(a => a.status === 'open').sort((a, b) => a.due < b.due ? -1 : 1).slice(0, 8);
+  const fuH = pend.length ? pend.map(a => { const s = S.over[a.site] || REFIX[a.site] || {}; return `<div class="fu"><span class="d ${a.due < today() ? 'late' : ''}">${fmtD(a.due)}</span><span style="min-width:0"><a href="#site-${esc(a.site)}">${esc(s.name || s.n || a.site)}</a><span class="m">${esc(a.msg)}${a.owner ? ' · ' + esc(a.owner) : ''}</span></span></div>`; }).join('') : '<div class="hint">ยังไม่มี Follow-up · ตั้งได้จากหน้ารายละเอียดลูกค้า</div>';
+  shell('dash', `
+  <div class="topline"><div><h1>โอกาสประมูลสัญญา FM 2027–2031</h1><div class="sub">${A.length} ไซต์ · Healthcare ${hc.length} ไซต์ · ยืนยันข้อมูลแล้ว ${verified} ไซต์</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button></div>
+  <div class="kpis">
+    <button class="kpi hot" data-act="goYear" data-v="2027"><b>${b27.length}</b><span>ไซต์ครบรอบประมูลปี 2027 · Healthcare ${b27h.length}</span></button>
+    <button class="kpi" data-act="goYear" data-v="2027"><b>${fmtM(b27.reduce((a, x) => a + (+x.s.value || 0), 0))}<small>/เดือน</small></b><span>มูลค่าสัญญาที่เปิดประมูลปี 2027</span></button>
+    <button class="kpi" data-act="goPrep"><b>${prepNow.length}</b><span>อยู่ในช่วงเตรียมประมูล (≤ ${S.cfg.prep} เดือนก่อนหมดสัญญา)</span></button>
+    <button class="kpi" data-act="goSrc" data-v="Outsource"><b>${by.Outsource}<small> / ${A.length}</small></b><span>จ้าง Outsource · ทำเอง ${by['In-house']} · ไม่ทราบ ${by['ไม่ทราบ']}</span></button>
+  </div>
+  <div class="dgrid">
+    <div class="col">
+      <section class="panel"><div class="ph"><h2>รอบหมดสัญญาที่ต้องเตรียมประมูล</h2><span class="hint">กดปีเพื่อดูรายชื่อ</span></div><div class="hz">${hz}</div>
+        <div class="legend"><span><i style="background:var(--navy)"></i>Healthcare</span><span><i style="background:var(--bar2)"></i>กลุ่มอื่น</span><span>คาดการณ์จากเดือนเริ่มสัญญาในข้อมูลปี 2021 และอายุสัญญา ${S.cfg.term} ปี · แก้รายไซต์ได้</span></div></section>
+      <section class="panel"><div class="ph"><h2>ทำเอง หรือ จ้าง Outsource</h2><span class="hint">ไซต์ที่ยังไม่ยืนยัน ${A.length - verified} · ควรตรวจสอบกับลูกค้า</span></div>${split}
+        <p class="hint" style="margin:10px 0 0">ทุกไซต์ในไฟล์เคยจ้าง AFM ในปี 2021 จึงตั้งต้นเป็น Outsource · ไซต์ที่หลุดจาก AFM ระหว่างปีตั้งเป็น “ไม่ทราบ” เพราะอาจกลับไปทำเองหรือเปลี่ยนผู้รับเหมา</p></section>
+      <section class="panel"><div class="ph"><h2>มูลค่าสัญญาต่อเดือนตามกลุ่มลูกค้า</h2><span class="hint">THB/เดือน (อัตราปี 2021)</span></div>${segH}</section>
+    </div>
+    <div class="col">
+      <section class="panel"><div class="ph"><h2>โอกาสที่ควรตามก่อน</h2><a class="btn ghost sm" href="#list">ดูทั้งหมด</a></div>${hotH}</section>
+      <section class="panel"><div class="ph"><h2>Follow-up ที่ต้องทำ</h2><a class="btn ghost sm" href="#follow">ดูทั้งหมด</a></div>${fuH}</section>
+    </div>
+  </div>`);
+}
+
+/* ===== list ===== */
+function match(s, F = S.f) {
+  if (F.q) { const q = F.q.toLowerCase(); if (![s.name, s.code, s.vendor, s.notes, s.province].some(x => String(x || '').toLowerCase().includes(q))) return false; }
+  if (F.hc && s.seg !== 'Healthcare') return false;
+  if (F.seg.length && !F.seg.includes(s.seg)) return false;
+  if (F.src.length && !F.src.includes(s.sourcing)) return false;
+  if (F.stage.length && !F.stage.includes(s.stage)) return false;
+  if (F.year === 'prep') { if (!s.inPrep) return false; }
+  else if (F.year === 'none') { if (s.next) return false; }
+  else if (F.year && !s.bids.some(b => b.exp.slice(0, 4) === F.year && b.exp >= ym(today()))) return false;
+  return true;
+}
+function goList(p) { S.f = Object.assign({ q: '', seg: [], src: [], stage: [], year: '', hc: false }, p); location.hash = '#list'; if (location.hash === '#list') render(); }
+function vList() {
+  const y0 = new Date().getFullYear(), years = []; for (let y = y0; y <= HZ_END; y++) years.push(String(y));
+  const ch = (k, v, l) => `<button class="chip" data-act="fchip" data-k="${k}" data-v="${esc(v)}" aria-pressed="${S.f[k].includes(v)}">${esc(l)}</button>`;
+  shell('list', `
+  <div class="topline"><div><h1>ฐานลูกค้า</h1><div class="sub">วิเคราะห์รูปแบบการจ้างและรอบประมูลของแต่ละไซต์</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button></div>
+  <section class="panel fpanel" aria-label="ตัวกรอง">
+    <input class="in" id="fq" data-f="q" value="${esc(S.f.q)}" placeholder="ค้นหาชื่อ รหัส ผู้ให้บริการ หรือหมายเหตุ" aria-label="ค้นหา">
+    <div class="frow"><span class="lbl">ประมูลปี</span><select class="in" id="fyear" data-fsel="year" style="width:auto;min-width:200px"><option value="">ทุกปี</option><option value="prep" ${S.f.year === 'prep' ? 'selected' : ''}>อยู่ในช่วงเตรียมประมูลตอนนี้</option>${years.map(y => `<option ${S.f.year === y ? 'selected' : ''}>${y}</option>`).join('')}<option value="none" ${S.f.year === 'none' ? 'selected' : ''}>ยังไม่ทราบรอบสัญญา</option></select>
+      <label class="chip"><input type="checkbox" id="fhc" data-fchk="hc" ${S.f.hc ? 'checked' : ''}> Healthcare เท่านั้น</label></div>
+    <div class="frow"><span class="lbl">การจ้าง</span><div class="chips">${SOURCING.map(v => ch('src', v, v)).join('')}</div></div>
+    <div class="frow"><span class="lbl">กลุ่ม</span><div class="chips">${SEGS.map(v => ch('seg', v, SEG_TH[v])).join('')}</div></div>
+    <div class="frow"><span class="lbl">สถานะดีล</span><div class="chips">${STAGES.map(([v, l]) => ch('stage', v, l)).join('')}</div></div>
+  </section>
+  <section id="results"></section>`);
+  renderResults();
+}
+function renderResults() {
+  try { localStorage.setItem('tko_filters', JSON.stringify(S.f)); } catch (e) { }
+  const rows = allSites().filter(s => match(s)), { k, d } = S.sort;
+  const val = s => k === 'next' ? (s.next ? s.next.exp : '9999') : k === 'gmp' ? (s.ref && s.ref.y ? s.ref.yg / s.ref.y : -9) : s[k];
+  rows.sort((a, b) => { const x = val(a), y = val(b); if (x == null) return 1; if (y == null) return -1; return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'th')) * d; });
+  S.lastRows = rows;
+  const th = (key, l, cls = '') => `<th class="${cls}" aria-sort="${k === key ? (d > 0 ? 'ascending' : 'descending') : 'none'}"><button data-act="sort" data-k="${key}">${l}${k === key ? (d > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
+  const sumV = rows.reduce((a, s) => a + (+s.value || 0), 0);
+  $('#results').innerHTML = `<div class="resbar"><span class="count" aria-live="polite">${rows.length} ไซต์ <span class="hint">· ${fmtN(sumV)} THB/เดือน</span></span><button class="btn sm" data-act="clearF">ล้างตัวกรอง</button><button class="btn sm" data-act="csv">ส่งออก CSV</button></div>
+  ${rows.length ? `<div class="tblwrap"><table><thead><tr>${th('name', 'ไซต์ลูกค้า')}${th('seg', 'กลุ่ม')}${th('sourcing', 'การจ้าง')}${th('scope', 'ขอบเขตงาน')}${th('value', 'THB/เดือน', 'num')}${th('gmp', 'GM% 2021', 'num')}${th('next', 'ประมูลรอบถัดไป')}${th('stage', 'สถานะดีล')}${th('score', 'คะแนน', 'num')}</tr></thead><tbody>
+  ${rows.map(s => { const g = s.ref && s.ref.y ? pct(s.ref.yg, s.ref.y) : null; return `<tr class="click" data-href="#site-${esc(s.code)}"><td><a href="#site-${esc(s.code)}">${esc(s.name)}</a><div class="hint"><span class="mono">${esc(s.code)}</span>${s.ref ? ' · ' + esc(Z_TH[s.ref.z]) : ' · ลูกค้าใหม่'}${s.verified ? ' · <span style="color:var(--green)">ยืนยันแล้ว</span>' : ''}</div></td><td>${segTag(s.seg)}</td><td>${srcTag(s.sourcing)}</td><td class="hint" style="color:var(--ink)">${esc(s.scope)}</td><td class="num">${fmtN(s.value)}</td><td class="num ${g != null && g < 15 ? 'late' : ''}">${g == null ? '' : g + '%'}</td><td>${s.next ? `<span class="${s.inPrep ? 'late' : ''}">${fmtYM(s.next.exp)}</span>${s.next.est ? '<span class="est">คาดการณ์</span>' : ''}<div class="hint">${s.inPrep ? 'อยู่ในช่วงเตรียมประมูล' : 'อีก ' + s.monthsTo + ' เดือน'}</div>` : '<span class="hint">ยังไม่ทราบ</span>'}</td><td>${stTag(s.stage)}</td><td class="num"><span class="scorebar"><b>${s.score}</b><i><u style="width:${s.score}%"></u></i></span></td></tr>`; }).join('')}
+  </tbody></table></div>` : '<div class="panel empty">ไม่พบไซต์ที่ตรงเงื่อนไข <button class="btn sm" data-act="clearF">ล้างตัวกรอง</button></div>'}`;
+}
+async function exportCSV() {
+  const rows = S.lastRows || [];
+  const cols = [['รหัส', s => s.code], ['ชื่อ', s => s.name], ['กลุ่ม', s => s.seg], ['การจ้าง', s => s.sourcing], ['ยืนยันแล้ว', s => s.verified ? 'Yes' : 'No'], ['ผู้ให้บริการปัจจุบัน', s => s.vendor], ['ขอบเขตงาน', s => s.scope], ['THB/เดือน', s => s.value ?? ''], ['GM% 2021', s => s.ref && s.ref.y ? pct(s.ref.yg, s.ref.y) : ''], ['พนักงาน 2021', s => s.ref ? s.ref.st ?? '' : ''], ['เริ่มสัญญา', s => s.start || ''], ['อายุสัญญา (ปี)', s => s.termY], ['ประมูลรอบถัดไป', s => s.next ? s.next.exp : ''], ['รอบในปี 2027–2031', s => s.bids.filter(b => b.exp >= '2027').map(b => b.exp).join(' / ')], ['สถานะดีล', s => STG[s.stage] || ''], ['ผู้ดูแล', s => s.owner], ['คะแนน', s => s.score], ['หมายเหตุ', s => s.notes]];
+  const q = v => { const x = v == null ? '' : String(v); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
+  const csv = '﻿' + [cols.map(c => q(c[0])).join(','), ...rows.map(s => cols.map(c => q(c[1](s))).join(','))].join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'TKO_iMATOMs_clients_' + today() + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+  toast('ส่งออก ' + rows.length + ' ไซต์');
+}
+
+/* ===== ClientSite board ===== */
+function vBoard() {
+  const y0 = new Date().getFullYear(), years = []; for (let y = y0; y <= HZ_END; y++) years.push(String(y));
+  const A = allSites().filter(s => (!S.bf.hc || s.seg === 'Healthcare') && (!S.bf.year || (S.bf.year === 'prep' ? s.inPrep : s.bids.some(b => b.exp.slice(0, 4) === S.bf.year && b.exp >= ym(today())))));
+  const cols = STAGES.map(([k, l]) => { const ss = A.filter(s => s.stage === k).sort((a, b) => b.score - a.score); return `<section class="bcol" aria-label="${esc(l)}"><h3>${stTag(k)}<small>${ss.length}</small></h3><div class="val">${fmtN(ss.reduce((a, s) => a + (+s.value || 0), 0))} THB/ด.</div>
+    ${ss.map(s => `<article class="card"><a class="nm" href="#site-${esc(s.code)}">${esc(s.name)}</a><div class="tags">${segTag(s.seg)}${srcTag(s.sourcing)}</div>
+      <div class="row"><span class="${s.inPrep ? 'soon' : 'hint'}">${s.next ? 'ประมูล ' + fmtYM(s.next.exp) : 'ยังไม่ทราบรอบ'}</span><b title="คะแนนโอกาส">${s.score}</b></div>
+      <div class="row"><span class="hint">${esc(s.owner || 'ยังไม่มีผู้ดูแล')}</span><select class="in" id="stg-${esc(s.code)}" data-stage="${esc(s.code)}" aria-label="ย้ายสถานะ ${esc(s.name)}" style="width:auto">${STAGES.map(([v, t]) => `<option value="${v}" ${v === s.stage ? 'selected' : ''}>${t}</option>`).join('')}</select></div></article>`).join('') || '<div class="hint" style="padding:6px">ไม่มีไซต์</div>'}</section>`; }).join('');
+  shell('board', `<div class="topline"><div><h1>ClientSite · ติดตามรายไซต์</h1><div class="sub">${A.length} ไซต์ · เปลี่ยนสถานะจากเมนูในการ์ด ระบบบันทึกประวัติให้</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button></div>
+  <div class="frow" style="margin-bottom:12px"><label class="chip"><input type="checkbox" id="bhc" data-bchk="hc" ${S.bf.hc ? 'checked' : ''}> Healthcare เท่านั้น</label>
+    <select class="in" id="byear" data-bsel="year" style="width:auto;min-width:200px" aria-label="ประมูลปี"><option value="">ประมูลทุกปี</option><option value="prep" ${S.bf.year === 'prep' ? 'selected' : ''}>อยู่ในช่วงเตรียมประมูล</option>${years.map(y => `<option ${S.bf.year === y ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
+  <div class="boardwrap"><div class="board">${cols}</div></div>`);
+}
+
+/* ===== detail ===== */
+function spark(r) {
+  const W = 520, H = 150, L = 46, B = 22, T = 10, mx = Math.max(1, ...r.m), bw = (W - L - 8) / 9;
+  const yv = v => T + (H - T - B) * (1 - Math.max(0, v) / mx);
+  const ticks = [0, mx / 2, mx];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="รายได้และกำไรขั้นต้นรายเดือน ปี 2021">${ticks.map(v => `<line class="gl" x1="${L}" x2="${W - 4}" y1="${yv(v)}" y2="${yv(v)}"/><text x="${L - 6}" y="${yv(v) + 4}" text-anchor="end">${fmtM(v)}</text>`).join('')}
+    ${r.m.map((v, i) => { const x = L + i * bw + 4, g = Math.max(0, r.g[i]); return `<rect class="rb" x="${x}" y="${yv(v)}" width="${bw * .42}" height="${Math.max(0, H - B - yv(v))}"><title>${MON[i]}: รายได้ ${fmtN(v)}</title></rect><rect class="gb" x="${x + bw * .44}" y="${yv(g)}" width="${bw * .42}" height="${Math.max(0, H - B - yv(g))}"><title>${MON[i]}: GM ${fmtN(r.g[i])}</title></rect><text x="${x + bw * .43}" y="${H - 6}" text-anchor="middle">${MON[i]}</text>`; }).join('')}</svg>
+    <div class="legend"><span><i style="background:var(--navy)"></i>รายได้</span><span><i style="background:var(--bar2)"></i>กำไรขั้นต้น</span></div>`;
+}
+function vSite(code) {
+  if (!allCodes().includes(code)) { shell('list', `<div class="panel empty">ไม่พบไซต์ ${esc(code)} · <a href="#list">กลับไปฐานลูกค้า</a></div>`); return; }
+  const s = site(code), r = s.ref, t = ym(today());
+  const kv = pairs => `<dl class="kv">${pairs.filter(([, v]) => v !== '' && v != null).map(([l, v, raw]) => `<div><dt>${esc(l)}</dt><dd>${raw ? v : esc(v)}</dd></div>`).join('') || '<div class="muted">ยังไม่มีข้อมูล</div>'}</dl>`;
+  const logs = S.logs.filter(l => l.site === code).sort((a, b) => a.at < b.at ? 1 : -1);
+  const acts = S.actions.filter(a => a.site === code && a.status === 'open').sort((a, b) => a.due < b.due ? -1 : 1);
+  const lab = { seg: 'กลุ่มลูกค้า', time: 'ใกล้ถึงรอบประมูล', size: 'มูลค่าสัญญา', scope: 'ตรงกับงาน Hard service', weak: 'ช่องว่างผู้ให้บริการเดิม' };
+  const brk = Object.entries(s.sc.part).map(([k, v]) => `<div class="brk"><span>${lab[k]}</span><span class="mb"><i style="width:${S.cfg.w[k] ? v / S.cfg.w[k] * 100 : 0}%"></i></span><b>${Math.round(v)}/${S.cfg.w[k]}</b></div>`).join('');
+  const tl = s.bids.length ? s.bids.map(b => `<div class="tlr ${s.next && b.exp === s.next.exp ? 'next' : b.exp < t ? 'past' : ''}"><b>${fmtYM(b.exp)}</b><span>${b.exp < t ? 'ครบรอบแล้ว' : `เริ่มเตรียมประมูล ${fmtYM(b.prep)}${s.next && b.exp === s.next.exp ? ' · รอบถัดไป' : ''}`}${b.est ? '<span class="est">คาดการณ์</span>' : ''}</span></div>`).join('') : '<div class="hint">ยังไม่ทราบรอบสัญญา · ใส่วันเริ่มหรือวันหมดสัญญาในแก้ไขข้อมูล</div>';
+  const gmp = r && r.y ? pct(r.yg, r.y) : null;
+  shell('list', `
+  <a href="#list" class="btn ghost sm" style="margin-bottom:8px;padding-left:0">← กลับไปฐานลูกค้า</a>
+  <div class="dhead"><div style="flex:1 1 380px;min-width:0"><h1>${esc(s.name)}</h1>
+    <div class="meta"><span class="mono">${esc(code)}</span>${segTag(s.seg)}${srcTag(s.sourcing)}${stTag(s.stage)}${s.verified ? '<span class="tag gr">ยืนยันข้อมูลแล้ว</span>' : '<span class="tag am">ยังไม่ยืนยันกับลูกค้า</span>'}<span>ผู้ดูแล: <b style="color:var(--ink)">${esc(s.owner || '-')}</b></span></div></div>
+    <div class="score"><b>${s.score}</b><span>คะแนนโอกาส</span></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"><button class="btn pri" data-act="editSite" data-id="${esc(code)}">แก้ไขข้อมูล</button><button class="btn" data-act="logDlg" data-id="${esc(code)}">บันทึกกิจกรรม</button><button class="btn" data-act="fuDlg" data-id="${esc(code)}">ตั้ง Follow-up</button><button class="btn" data-act="ctcDlg" data-id="${esc(code)}">เพิ่มผู้ติดต่อ</button></div>
+  <div class="dlay"><div class="col">
+    <section class="panel"><h2>รูปแบบการจ้างและขอบเขตงาน</h2>${kv([['การจ้าง', s.sourcing], ['ผู้ให้บริการปัจจุบัน', s.vendor], ['ขอบเขตงาน', s.scope], ['มูลค่าสัญญา (THB/เดือน)', s.value ? fmtN(s.value) : ''], ['จังหวัด / ที่ตั้ง', s.province], ['ปรับปรุงล่าสุด', S.over[code] && S.over[code].updatedAt ? fmtD(S.over[code].updatedAt) + (S.over[code].updatedBy ? ' · ' + nameOf(S.over[code].updatedBy) : '') : '']])}${s.notes ? `<p style="margin:12px 0 0;white-space:pre-line"><span class="hint">หมายเหตุ</span><br>${esc(s.notes)}</p>` : ''}</section>
+    <section class="panel"><div class="ph"><h2>รอบสัญญาและการประมูล</h2><span class="hint">อายุสัญญา ${s.termY} ปี · เริ่ม ${s.start ? fmtYM(s.start) : '-'}${s.start && s.startEst ? ' (คาดการณ์)' : ''}${s.expiry ? ' · หมดสัญญาจริง ' + fmtD(s.expiry) : ''}</span></div><div class="timeline">${tl}</div></section>
+    ${r ? `<section class="panel"><div class="ph"><h2>ข้อมูลอ้างอิง AFM ปี 2021</h2><span class="hint">${esc(Z_TH[r.z])}</span></div>
+      ${kv([['รายได้ ม.ค.–ก.ย.', fmtN(r.y) + ' THB'], ['กำไรขั้นต้น YTD', r.y ? fmtN(r.yg) + ' THB (' + gmp + '%)' : ''], ['รายได้/เดือน (อัตราล่าสุด)', fmtN(r.rv)], ['พนักงานประจำไซต์', r.st ? r.st + ' คน' : ''], ['ค่าบริการต่อหัว/เดือน', r.ph ? fmtN(r.ph) + ' THB' : ''], ['พื้นที่', r.a ? fmtN(r.a) + ' sqm' : ''], ['ค่าบริการ THB/sqm', r.ts ? r.ts.toFixed(2) : ''], ['งานซ่อม/โปรเจกต์ YTD', r.pj ? fmtN(r.pj) + ' THB' : '']])}
+      ${r.m.some(v => v > 0) ? `<div style="margin-top:14px;overflow-x:auto">${spark(r)}</div>` : ''}</section>` : ''}
+  </div><div class="col">
+    <section class="panel"><h2>คะแนนโอกาส ${s.score}/100</h2>${brk}<p class="hint" style="margin:10px 0 0">ปรับน้ำหนักได้ที่หน้าตั้งค่า</p></section>
+    <section class="panel"><h2>Follow-up ที่ค้าง</h2>${acts.length ? acts.map(a => `<div class="fu" style="grid-template-columns:84px minmax(0,1fr)"><span class="d ${a.due < today() ? 'late' : ''}">${fmtD(a.due)}</span><span>${esc(a.msg)}<span class="m">${esc(a.owner || '')}</span><span style="display:flex;gap:6px;margin-top:6px"><button class="btn sm" data-act="aDone" data-id="${a.id}">เสร็จแล้ว</button><button class="btn sm ghost" data-act="aSnooze" data-id="${a.id}">เลื่อน 7 วัน</button></span></span></div>`).join('') : '<div class="hint">ไม่มีรายการค้าง</div>'}</section>
+    <section class="panel"><h2>ผู้ติดต่อ</h2>${(s.contacts || []).length ? s.contacts.map((c, i) => `<div class="ctc"><div><b>${esc(c.name)}</b><div class="hint">${esc([c.pos, c.role].filter(Boolean).join(' · '))}</div>${c.phone ? `<div style="user-select:all">${esc(c.phone)}</div>` : ''}${c.email ? `<div style="user-select:all">${esc(c.email)}</div>` : ''}</div><button class="btn ghost sm" data-act="ctcDel" data-id="${esc(code)}" data-i="${i}" aria-label="ลบผู้ติดต่อ ${esc(c.name)}">ลบ</button></div>`).join('') : '<div class="hint">ยังไม่มีผู้ติดต่อ</div>'}</section>
+    <section class="panel"><h2>ประวัติ</h2><ul class="tl">${logs.map(l => `<li><div class="when">${fmtD(l.at)} ${l.at ? l.at.slice(11, 16) : ''}${l.by ? ' · ' + esc(nameOf(l.by)) : ''}</div><b>${esc(l.type)}</b><div>${esc(l.text)}</div></li>`).join('') || '<li>ยังไม่มีประวัติ</li>'}</ul></section>
+  </div></div>`);
+}
+
+/* ===== follow-ups ===== */
+function vFollow() {
+  const t = today(), open = S.actions.filter(a => a.status === 'open').sort((a, b) => a.due < b.due ? -1 : 1);
+  const done = S.actions.filter(a => a.status !== 'open').sort((a, b) => (a.doneAt || '') < (b.doneAt || '') ? 1 : -1).slice(0, 30);
+  const nm = c => (site(c) || {}).name || c;
+  const row = a => `<tr><td class="${a.status === 'open' && a.due < t ? 'late' : ''}" style="white-space:nowrap">${fmtD(a.due)}</td><td><a href="#site-${esc(a.site)}">${esc(nm(a.site))}</a></td><td>${esc(a.msg)}</td><td>${esc(a.owner || '')}</td><td style="white-space:nowrap">${a.status === 'open' ? `<button class="btn sm" data-act="aDone" data-id="${a.id}">เสร็จแล้ว</button> <button class="btn sm ghost" data-act="aSnooze" data-id="${a.id}">+7 วัน</button>` : `<span class="muted">เสร็จ ${fmtD(a.doneAt)}</span>`}</td></tr>`;
+  shell('follow', `<div class="topline"><div><h1>Follow-up</h1><div class="sub">ค้าง ${open.length} รายการ · เลยกำหนด ${open.filter(a => a.due < t).length}</div></div></div>
+  ${open.length ? `<div class="tblwrap"><table><thead><tr><th>วันที่</th><th>ไซต์</th><th>สิ่งที่ต้องทำ</th><th>ผู้รับผิดชอบ</th><th></th></tr></thead><tbody>${open.map(row).join('')}</tbody></table></div>` : '<div class="panel empty">ยังไม่มี Follow-up ค้าง · ตั้งได้จากหน้ารายละเอียดลูกค้า</div>'}
+  ${done.length ? `<h2 style="font-size:15px;margin:22px 0 10px">เสร็จล่าสุด</h2><div class="tblwrap"><table><tbody>${done.map(row).join('')}</tbody></table></div>` : ''}`);
+}
+
+/* ===== settings ===== */
+function vSettings() {
+  const c = S.cfg, lab = { seg: 'กลุ่มลูกค้า', time: 'ใกล้ถึงรอบประมูล', size: 'มูลค่าสัญญา', scope: 'ตรงกับงาน Hard service', weak: 'ช่องว่างผู้ให้บริการเดิม' };
+  shell('settings', `<div class="topline"><div><h1>ตั้งค่า</h1><div class="sub">ใช้ร่วมกันทั้งทีม · มีผลกับการคาดการณ์และคะแนนทุกไซต์</div></div></div>
+  <form id="cfgf" class="wgrid">
+    <section class="panel"><h2>รอบสัญญา</h2><div class="wrow"><label for="c_term">อายุสัญญาตั้งต้น (ปี)</label><input class="in" id="c_term" name="term" inputmode="numeric" value="${c.term}"></div><div class="wrow"><label for="c_prep">เริ่มเตรียมประมูลก่อนหมดสัญญา (เดือน)</label><input class="in" id="c_prep" name="prep" inputmode="numeric" value="${c.prep}"></div><p class="hint" style="margin:8px 0 0">ไซต์ที่ระบุอายุสัญญาหรือวันหมดสัญญาเองจะใช้ค่าของไซต์นั้น</p></section>
+    <section class="panel"><h2>น้ำหนักคะแนนโอกาส</h2>${Object.keys(lab).map(k => `<div class="wrow"><label for="w_${k}">${lab[k]}</label><input class="in" id="w_${k}" name="w_${k}" inputmode="numeric" value="${c.w[k]}"></div>`).join('')}<p class="hint" style="margin:8px 0 0">ระบบแปลงผลรวมเป็นคะแนนเต็ม 100</p></section>
+    <section class="panel"><h2>คะแนนกลุ่มลูกค้า (0–100)</h2>${SEGS.map((g, i) => `<div class="wrow"><label for="sg_${i}">${esc(SEG_TH[g])}</label><input class="in" id="sg_${i}" name="sg_${i}" inputmode="numeric" value="${c.segW[g] ?? 40}"></div>`).join('')}</section>
+    <section class="panel"><h2>ทีม MKT (ผู้ดูแลไซต์)</h2><label class="f" for="c_owners">หนึ่งชื่อต่อบรรทัด<textarea class="in" id="c_owners" name="owners" rows="6">${esc((c.owners || []).join('\n'))}</textarea></label></section>
+    <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn" data-act="cfgReset">คืนค่าเริ่มต้น</button><button class="btn pri">บันทึกการตั้งค่า</button></div>
+  </form>
+  ${S.user && S.user.role === 'Admin' ? `<section class="panel" style="margin-top:14px"><div class="ph"><h2>ผู้ใช้งานระบบ</h2><span class="hint">เฉพาะอีเมลในรายการนี้ที่ขอรหัส OTP ได้</span></div>
+    <form id="usrf"><div id="ulist">${S.users.map((u, i) => userRow(u, i)).join('')}</div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn" data-act="addUser">+ เพิ่มผู้ใช้</button><button class="btn pri">บันทึกผู้ใช้</button></div></form>
+    <p class="hint" style="margin:10px 0 0">imatomsapps1976@gmail.com เป็น Admin ถาวร · ปิดสิทธิ์ผู้ใช้แล้ว เครื่องที่เคยเข้าระบบจะถูกออกจากระบบทันที</p></section>` : ''}`);
+  const uf = $('#usrf');
+  if (uf) uf.onsubmit = e => {
+    e.preventDefault();
+    const users = $$('.urow', uf).map(r => ({ email: r.querySelector('[data-u="email"]').value.trim().toLowerCase(), name: r.querySelector('[data-u="name"]').value.trim(), role: r.querySelector('[data-u="role"]').value, active: r.querySelector('[data-u="active"]').checked })).filter(u => u.email);
+    const bad = users.find(u => !/^[^@\s]+@[^@\s]+$/.test(u.email)); if (bad) { toast('อีเมลไม่ถูกต้อง: ' + bad.email); return; }
+    if (new Set(users.map(u => u.email)).size !== users.length) { toast('มีอีเมลซ้ำกัน'); return; }
+    const adm = users.find(u => u.email === ADMIN_EMAIL); if (!adm || !adm.active || adm.role !== 'Admin') { toast(ADMIN_EMAIL + ' ต้องเป็น Admin ที่เปิดใช้งานเสมอ'); return; }
+    saveUsers(users);
+  };
+  $('#cfgf').onsubmit = e => {
+    e.preventDefault(); const fd = new FormData(e.target), n = (k, d) => { const v = +fd.get(k); return isNaN(v) ? d : v; };
+    const cfg = { term: Math.max(1, n('term', 3)), prep: Math.max(0, n('prep', 6)), owners: String(fd.get('owners') || '').split('\n').map(x => x.trim()).filter(Boolean), w: {}, segW: {} };
+    Object.keys(lab).forEach(k => cfg.w[k] = Math.max(0, n('w_' + k, 0)));
+    SEGS.forEach((g, i) => cfg.segW[g] = Math.min(100, Math.max(0, n('sg_' + i, 40))));
+    saveCfg(cfg);
+  };
+}
+
+const ADMIN_EMAIL = 'imatomsapps1976@gmail.com';
+function userRow(u, i) {
+  const fixed = u.email === ADMIN_EMAIL;
+  return `<div class="urow"><input class="in" id="u_e${i}" data-u="email" type="email" value="${esc(u.email || '')}" placeholder="name@company.com" aria-label="อีเมล" ${fixed ? 'readonly' : ''}>
+    <input class="in" id="u_n${i}" data-u="name" value="${esc(u.name || '')}" placeholder="ชื่อที่แสดง" aria-label="ชื่อ">
+    <select class="in" id="u_r${i}" data-u="role" aria-label="บทบาท" ${fixed ? 'disabled' : ''}>${['Admin', 'Member'].map(r => `<option ${r === (u.role || 'Member') ? 'selected' : ''}>${r}</option>`).join('')}</select>
+    <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="u_a${i}" data-u="active" ${u.active !== false ? 'checked' : ''} ${fixed ? 'disabled' : ''}> ใช้งาน</label>
+    ${fixed ? '<span></span>' : `<button type="button" class="btn ghost sm" data-act="delUser" aria-label="ลบผู้ใช้">ลบ</button>`}</div>`;
+}
+
+/* ===== dialogs ===== */
+function openDlg(html, onSubmit, ok = 'บันทึก') {
+  const d = $('#dlg');
+  d.innerHTML = `<form class="dlg" id="dlgform">${html}<div class="notice" id="dlgErr" hidden></div><div class="dlg-foot"><button type="button" class="btn" data-act="closeDlg">ยกเลิก</button><button class="btn pri">${ok}</button></div></form>`;
+  $('#dlgform').onsubmit = async e => { e.preventDefault(); try { const r = await onSubmit(new FormData(e.target)); if (r !== false) d.close(); } catch (err) { const b = $('#dlgErr'); b.textContent = err.message; b.hidden = false; } };
+  d.showModal(); const first = d.querySelector('input,select,textarea'); if (first) first.focus();
+}
+const opt = (list, cur, blank) => (blank ? '<option value="">—</option>' : '') + list.map(v => { const [val, l] = Array.isArray(v) ? v : [v, v]; return `<option value="${esc(val)}" ${val === cur ? 'selected' : ''}>${esc(l)}</option>`; }).join('');
+function siteForm(s, isNew) {
+  return `<h2>${isNew ? 'เพิ่มลูกค้าใหม่' : 'แก้ไข ' + esc(s.name)}</h2>
+  <div class="fg"><label class="f" for="s_name">ชื่อไซต์ / ลูกค้า<input class="in" id="s_name" name="name" value="${esc(s.name || '')}" required></label>
+    <label class="f" for="s_seg">กลุ่ม<select class="in" id="s_seg" name="seg">${opt(SEGS.map(g => [g, SEG_TH[g]]), s.seg || 'Healthcare')}</select></label>
+    <label class="f" for="s_prov">จังหวัด / ที่ตั้ง<input class="in" id="s_prov" name="province" value="${esc(s.province || '')}"></label></div>
+  <div class="fg"><label class="f" for="s_src">การจ้างงาน FM<select class="in" id="s_src" name="sourcing">${opt(SOURCING, s.sourcing)}</select></label>
+    <label class="f" for="s_ven">ผู้ให้บริการปัจจุบัน<input class="in" id="s_ven" name="vendor" value="${esc(s.vendor || '')}" placeholder="เช่น ทีมช่างของ รพ. เอง / ชื่อบริษัท"></label>
+    <label class="f" for="s_scope">ขอบเขตงาน<select class="in" id="s_scope" name="scope">${opt(SCOPES, s.scope)}</select></label></div>
+  <label class="f" style="flex-direction:row;align-items:center;gap:8px;font-weight:400"><input type="checkbox" id="s_ver" name="verified" ${s.verified ? 'checked' : ''}> ยืนยันการจ้างงานและผู้ให้บริการกับลูกค้าแล้ว</label>
+  <div class="fg"><label class="f" for="s_val">มูลค่าสัญญา (THB/เดือน)<input class="in" id="s_val" name="value" inputmode="decimal" value="${s.value ?? ''}"></label>
+    <label class="f" for="s_start">เดือนที่เริ่มสัญญา<input class="in" id="s_start" type="month" name="start" value="${esc(s.start || '')}"><span class="hint">${s.startEst && s.start ? 'ค่าปัจจุบันคาดการณ์จากข้อมูลปี 2021' : ''}</span></label>
+    <label class="f" for="s_term">อายุสัญญา (ปี)<input class="in" id="s_term" name="term" inputmode="numeric" value="${s.term ?? ''}" placeholder="ตั้งต้น ${S.cfg.term}"></label>
+    <label class="f" for="s_exp">วันหมดสัญญา (ถ้าทราบ)<input class="in" id="s_exp" type="date" name="expiry" value="${esc(s.expiry || '')}"><span class="hint">ใช้แทนการคาดการณ์</span></label></div>
+  <div class="fg"><label class="f" for="s_stage">สถานะดีล<select class="in" id="s_stage" name="stage">${opt(STAGES, s.stage)}</select></label>
+    <label class="f" for="s_owner">ผู้ดูแล (MKT)<select class="in" id="s_owner" name="owner">${opt(S.cfg.owners || [], s.owner, 1)}</select></label></div>
+  <label class="f" for="s_notes">หมายเหตุ<textarea class="in" id="s_notes" name="notes">${esc(s.notes || '')}</textarea></label>`;
+}
+function readSiteForm(fd) {
+  const v = k => String(fd.get(k) || '').trim();
+  const p = { name: v('name'), seg: v('seg'), province: v('province'), sourcing: v('sourcing'), vendor: v('vendor'), scope: v('scope'), verified: !!fd.get('verified'), value: v('value') === '' ? null : +v('value').replace(/,/g, ''), start: v('start') || null, term: v('term') === '' ? null : +v('term'), expiry: v('expiry'), stage: v('stage'), owner: v('owner') };
+  if (!p.name) throw new Error('กรุณาใส่ชื่อไซต์');
+  if (p.value != null && isNaN(p.value)) throw new Error('มูลค่าสัญญาต้องเป็นตัวเลข');
+  if (p.term != null && (isNaN(p.term) || p.term <= 0)) throw new Error('อายุสัญญาต้องเป็นตัวเลขมากกว่า 0');
+  return p;
+}
+function editSite(code) {
+  const s = site(code);
+  openDlg(siteForm(s), async fd => {
+    const p = readSiteForm(fd), changes = [];
+    if (p.stage !== s.stage) changes.push(['เปลี่ยนสถานะ', (STG[s.stage] || '-') + ' → ' + STG[p.stage]]);
+    if (p.sourcing !== s.sourcing) changes.push(['อัปเดตการจ้าง', s.sourcing + ' → ' + p.sourcing]);
+    if (p.verified && !s.verified) changes.push(['ยืนยันข้อมูล', 'ยืนยันการจ้างงานกับลูกค้าแล้ว']);
+    const patch = Object.assign({}, p, { notes: v2(fd, 'notes') });
+    if (s.ref && patch.start === s.start && s.startEst) delete patch.start;
+    await saveSite(code, patch, 'บันทึกแล้ว');
+    for (const [t, x] of changes) await addLog(code, t, x);
+  });
+}
+const v2 = (fd, k) => String(fd.get(k) || '').trim();
+function newSite() {
+  openDlg(siteForm({ seg: 'Healthcare', sourcing: 'ไม่ทราบ', scope: 'Hard service (ช่าง/วิศวกรรม)', stage: 'target' }, true), async fd => {
+    const p = readSiteForm(fd); p.notes = v2(fd, 'notes'); p.isNew = true;
+    const code = 'N' + Date.now().toString(36).toUpperCase().slice(-6);
+    await saveSite(code, p, 'เพิ่ม ' + p.name + ' แล้ว');
+    await addLog(code, 'สร้างไซต์ใหม่', p.name);
+    location.hash = '#site-' + code;
+  }, 'เพิ่มลูกค้า');
+}
+function logDlg(code) {
+  openDlg(`<h2>บันทึกกิจกรรม</h2><label class="f" for="l_t">ประเภท<select class="in" id="l_t" name="t">${opt(['โทรศัพท์', 'ประชุม', 'สำรวจไซต์', 'ส่งข้อเสนอ', 'ยื่นประมูล', 'อีเมล', 'อื่นๆ'], 'โทรศัพท์')}</select></label><label class="f" for="l_x">รายละเอียด<textarea class="in" id="l_x" name="x" placeholder="คุยกับใคร เรื่องอะไร ผลเป็นอย่างไร"></textarea></label>`,
+    async fd => { const x = v2(fd, 'x'); if (!x) throw new Error('กรุณาใส่รายละเอียด'); await addLog(code, fd.get('t'), x); toast('บันทึกกิจกรรมแล้ว'); });
+}
+function fuDlg(code) {
+  const s = site(code), d7 = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  const pre = s.next ? s.next.prep + '-01' : '';
+  openDlg(`<h2>ตั้ง Follow-up</h2><label class="f" for="f_d">วันที่<input class="in" id="f_d" type="date" name="d" value="${d7}" required></label>${pre ? `<button type="button" class="chip" data-act="setPrep" data-v="${pre}" style="align-self:flex-start">วันเริ่มเตรียมประมูล ${fmtYM(s.next.prep)}</button>` : ''}
+    <label class="f" for="f_m">สิ่งที่ต้องทำ<input class="in" id="f_m" name="m" placeholder="เช่น นัดสำรวจระบบปรับอากาศและงานวิศวกรรม" required></label><label class="f" for="f_o">ผู้รับผิดชอบ<select class="in" id="f_o" name="o">${opt(S.cfg.owners || [], s.owner, 1)}</select></label>`,
+    async fd => { const d = v2(fd, 'd'), m = v2(fd, 'm'); if (!d || !m) throw new Error('กรุณาใส่วันที่และสิ่งที่ต้องทำ'); await addAction(code, d, m, v2(fd, 'o')); });
+}
+function ctcDlg(code) {
+  openDlg(`<h2>เพิ่มผู้ติดต่อ</h2><div class="fg"><label class="f" for="c_n">ชื่อ<input class="in" id="c_n" name="name" required></label><label class="f" for="c_p">ตำแหน่ง<input class="in" id="c_p" name="pos" placeholder="เช่น ผู้จัดการฝ่ายวิศวกรรม"></label><label class="f" for="c_r">บทบาทในการตัดสินใจ<select class="in" id="c_r" name="role">${opt(['ผู้ตัดสินใจ', 'ผู้มีอิทธิพล', 'ผู้ใช้งาน', 'จัดซื้อ', 'อื่นๆ'], '', 1)}</select></label><label class="f" for="c_t">โทรศัพท์<input class="in" id="c_t" name="phone" type="tel"></label><label class="f" for="c_e">อีเมล<input class="in" id="c_e" name="email" type="email"></label></div>`,
+    async fd => { const c = { name: v2(fd, 'name'), pos: v2(fd, 'pos'), role: v2(fd, 'role'), phone: v2(fd, 'phone'), email: v2(fd, 'email') }; if (!c.name) throw new Error('กรุณาใส่ชื่อ'); await saveSite(code, { contacts: [...(site(code).contacts || []), c] }, 'เพิ่มผู้ติดต่อแล้ว'); });
+}
+
+/* ===== router & events ===== */
+function render() {
+  const fid = document.activeElement && document.activeElement.id, sel = fid && document.activeElement.selectionStart;
+  if (!S.user || !S.token) return;
+  if ($('#dlg').open && !S._force) { S._pending = true; return; }
+  const h = (location.hash || '#dash').slice(1);
+  if (h.startsWith('site-')) vSite(h.slice(5));
+  else ({ dash: vDash, list: vList, board: vBoard, follow: vFollow, settings: vSettings }[h] || vDash)();
+  if (fid) { const el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); try { if (sel != null) el.setSelectionRange(sel, sel); } catch (e) { } } }
+}
+$('#dlg').addEventListener('close', () => { if (S._pending) { S._pending = false; render(); } });
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+const ACT = {
+  goYear: el => goList({ year: el.dataset.v }), goPrep: () => goList({ year: 'prep' }),
+  goSeg: el => goList({ seg: [el.dataset.v] }), goSrc: el => goList({ src: [el.dataset.v] }),
+  fchip: el => { const a = S.f[el.dataset.k], v = el.dataset.v, i = a.indexOf(v); i >= 0 ? a.splice(i, 1) : a.push(v); el.setAttribute('aria-pressed', i < 0); renderResults(); },
+  clearF: () => { S.f = { q: '', seg: [], src: [], stage: [], year: '', hc: false }; vList(); },
+  sort: el => { const k = el.dataset.k; S.sort = { k, d: S.sort.k === k ? -S.sort.d : (k === 'name' || k === 'next' ? 1 : -1) }; renderResults(); },
+  csv: exportCSV, newSite, editSite: el => editSite(el.dataset.id), logDlg: el => logDlg(el.dataset.id), fuDlg: el => fuDlg(el.dataset.id), ctcDlg: el => ctcDlg(el.dataset.id),
+  ctcDel: el => { const s = site(el.dataset.id), c = (s.contacts || []).slice(); c.splice(+el.dataset.i, 1); saveSite(el.dataset.id, { contacts: c }, 'ลบผู้ติดต่อแล้ว'); },
+  aDone: el => { const a = S.actions.find(x => x.id === el.dataset.id); setAction(el.dataset.id, { status: 'done', doneAt: new Date().toISOString() }); if (a) addLog(a.site, 'Follow-up เสร็จ', a.msg); },
+  aSnooze: el => { const a = S.actions.find(x => x.id === el.dataset.id); if (!a) return; const b = a.due < today() ? today() : a.due; const d = new Date(b + 'T00:00:00'); d.setDate(d.getDate() + 7); setAction(a.id, { due: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) }); },
+  setPrep: el => { $('#f_d').value = el.dataset.v; if (!$('#f_m').value) $('#f_m').value = 'เริ่มเตรียมเอกสารประมูลสัญญา FM รอบใหม่'; },
+  closeDlg: () => $('#dlg').close(),
+  cfgReset: () => saveCfg(JSON.parse(JSON.stringify(CFG0))),
+  refresh: () => refresh(false),
+  logout: async () => { if (Q.length) { toast('รอบันทึกให้เสร็จก่อนออกจากระบบ'); return; } try { await api('logout'); } catch (e) { } signOut(); },
+  addUser: () => { const l = $('#ulist'), i = l.children.length + Date.now() % 1000; l.insertAdjacentHTML('beforeend', userRow({ email: '', name: '', role: 'Member', active: true }, i)); l.lastElementChild.querySelector('input').focus(); },
+  delUser: el => el.closest('.urow').remove()
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (el) { e.preventDefault(); ACT[el.dataset.act] && ACT[el.dataset.act](el, e); return; }
+  const tr = e.target.closest('tr[data-href]'); if (tr && !e.target.closest('a,button')) location.hash = tr.dataset.href;
+});
+document.addEventListener('input', e => { if (e.target.dataset.f) { S.f[e.target.dataset.f] = e.target.value; renderResults(); } });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.fsel) { S.f[t.dataset.fsel] = t.value; renderResults(); }
+  else if (t.dataset.fchk) { S.f[t.dataset.fchk] = t.checked; renderResults(); }
+  else if (t.dataset.bsel) { S.bf[t.dataset.bsel] = t.value; vBoard(); }
+  else if (t.dataset.bchk) { S.bf[t.dataset.bchk] = t.checked; vBoard(); }
+  else if (t.dataset.stage) { const code = t.dataset.stage, s = site(code), v = t.value; saveSite(code, { stage: v }, 'ย้าย ' + s.name + ' ไป ' + STG[v]); addLog(code, 'เปลี่ยนสถานะ', (STG[s.stage] || '-') + ' → ' + STG[v]); }
+});
+boot();
+</script>
+</body>
+</html>
