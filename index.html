@@ -122,6 +122,11 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 .kpi.warm{background:var(--amber-l);border-color:var(--amber)}
 .kpi.warm b,.kpi.warm span{color:var(--amber)}
 .kpi b{font-size:30px}
+.tools{margin-left:auto;display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.who{display:flex;flex-direction:column;justify-content:center;padding:6px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-size:12.5px;color:var(--muted);line-height:1.4;min-width:190px}
+.who b{color:var(--ink);font-size:13.5px}
+.who .clk{font-family:var(--mono);font-size:12.5px;color:var(--navy)}
+.acts{display:flex;gap:6px;align-items:center}
 .seg2{display:flex;gap:2px;padding:3px;background:var(--surface);border:1px solid var(--line);border-radius:9px;flex-wrap:wrap}
 .seg2 button{border:none;background:transparent;font-size:13.5px;min-height:34px;padding:0 12px;border-radius:6px;cursor:pointer;color:var(--ink)}
 .seg2 button[aria-pressed="true"]{background:var(--navy);color:var(--on-pri);font-weight:600}
@@ -143,7 +148,7 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 .hzc.now .y,.hzc.now b{color:var(--amber)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:8px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-.brow{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr) 44px;align-items:center;gap:10px;font-size:13.5px;padding:4px;border-radius:6px}
+.brow{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr) 64px;align-items:center;gap:10px;font-size:13.5px;padding:4px;border-radius:6px}
 .brow:hover{background:var(--sunk)}
 .brow:focus-visible{outline:2px solid var(--navy)}
 .brow .tr{height:14px;background:var(--sunk);border-radius:3px;overflow:hidden;display:flex}
@@ -245,7 +250,7 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
@@ -482,6 +487,21 @@ function shell(page, html) {
   $('#root').innerHTML = `<div class="app"><aside class="side"><div class="brand"><b>TKO · iMATOMs</b><span>Client MKT</span><small>FM Engineering &amp; Hard Service</small></div><nav class="nav" aria-label="เมนูหลัก">${nav}</nav><div class="side-foot">${foot}<div>ข้อมูลอ้างอิง: P&amp;L AFM ม.ค.–ก.ย. 2021</div></div></aside><main class="main" id="main">${html}</main></div>`;
 }
 
+const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+function clockText() { const d = new Date(); return 'วัน' + DAY_TH[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' น.'; }
+setInterval(() => { const el = document.getElementById('clock'); if (el) el.textContent = clockText(); }, 20000);
+/** รอให้รายการที่ค้างบันทึกเสร็จ แล้วดึงข้อมูลล่าสุดจาก Google Sheet */
+async function saveNow(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก…'; }
+  try {
+    for (let i = 0; Q.length && i < 120; i++) await sleep(500);
+    if (Q.length) throw new Error('ยังบันทึกไม่เสร็จ ลองอีกครั้ง');
+    const j = await api('bootstrap'); applyData(j.data); S.user = j.user;
+    const d = new Date(); S.savedAt = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' น.';
+    render(); toast('ข้อมูลทั้งหมดบันทึกใน Google Sheet แล้ว · ' + S.savedAt);
+  } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Save data'; } }
+}
+
 /* ===== dashboard ===== */
 function vDash() {
   const own = S.dashOwner || '', owners = S.cfg.owners || [];
@@ -509,7 +529,9 @@ function vDash() {
   const fuH = pend.length ? pend.map(a => { const s = S.over[a.site] || REFIX[a.site] || {}; return `<div class="fu"><span class="d ${a.due < today() ? 'late' : ''}">${fmtD(a.due)}</span><span style="min-width:0"><a href="#site-${esc(a.site)}">${esc(s.name || s.n || a.site)}</a><span class="m">${esc(a.msg)}${a.owner ? ' · ' + esc(a.owner) : ''}</span></span></div>`; }).join('') : '<div class="hint">ยังไม่มี Follow-up · ตั้งได้จากหน้ารายละเอียดลูกค้า</div>';
   shell('dash', `
   <div class="topline"><div><h1>โอกาสประมูลสัญญา FM 2027–2031</h1><div class="sub">${A.length} ไซต์ · Healthcare ${hc.length} ไซต์ · ยืนยันข้อมูลแล้ว ${verified} ไซต์${own ? ' · ผู้ดูแล ' + esc(own) : ''}</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button>
-    <div class="seg2" role="group" aria-label="ดูข้อมูลของ Sales"><button type="button" data-act="dashOwner" data-v="" aria-pressed="${!own}">ทั้งทีม</button>${owners.map(o => `<button type="button" data-act="dashOwner" data-v="${esc(o)}" aria-pressed="${own === o}">${esc(o)}</button>`).join('')}</div></div>
+    <div class="seg2" role="group" aria-label="ดูข้อมูลของ Sales" style="align-self:center"><button type="button" data-act="dashOwner" data-v="" aria-pressed="${!own}">ทั้งทีม</button>${owners.map(o => `<button type="button" data-act="dashOwner" data-v="${esc(o)}" aria-pressed="${own === o}">${esc(o)}</button>`).join('')}</div>
+    <div class="tools"><div class="who" aria-label="ผู้ใช้งานและเวลา"><b>${esc((S.user && S.user.name) || '')}</b><span class="clk" id="clock">${clockText()}</span><span id="lastsave">${S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'บันทึกอัตโนมัติทุกครั้งที่แก้ไข'}</span></div>
+      <div class="acts"><button class="btn pri" data-act="saveNow">Save data</button><button class="btn" data-act="exportDash">Export data (CSV)</button></div></div></div>
   ${own && !A.length ? `<div class="notice" style="margin-bottom:14px">${esc(own)} ยังไม่มีไซต์ที่ดูแล · กำหนดผู้ดูแลได้ที่ปุ่ม "แก้ไขข้อมูล" ในหน้ารายละเอียดลูกค้า</div>` : ''}
   <div class="kpis">
     <button class="kpi warm" data-act="goYear" data-v="2027"><b>${b27.length}</b><span>ไซต์ครบรอบประมูลปี 2027 · Healthcare ${b27h.length}</span></button>
@@ -776,6 +798,8 @@ $('#dlg').addEventListener('close', () => { if (S._pending) { S._pending = false
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
 const ACT = {
   dashOwner: el => { S.dashOwner = el.dataset.v; vDash(); },
+  saveNow: el => saveNow(el),
+  exportDash: () => { const own = S.dashOwner || ''; S.lastRows = allSites().filter(s => !own || s.owner === own).sort((a, b) => b.score - a.score); exportCSV(); },
   goYear: el => goList({ year: el.dataset.v }), goPrep: () => goList({ year: 'prep' }),
   goSeg: el => goList({ seg: [el.dataset.v] }), goSrc: el => goList({ src: [el.dataset.v] }),
   fchip: el => { const a = S.f[el.dataset.k], v = el.dataset.v, i = a.indexOf(v); i >= 0 ? a.splice(i, 1) : a.push(v); el.setAttribute('aria-pressed', i < 0); renderResults(); },
