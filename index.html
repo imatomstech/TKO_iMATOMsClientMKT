@@ -113,14 +113,19 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 .dlg-foot{display:flex;justify-content:flex-end;gap:8px}
 /* dashboard */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
-.kpi{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;min-height:104px}
 .kpi:hover{border-color:var(--navy)}
 .kpi:focus-visible{outline:2px solid var(--navy)}
 .kpi b{font-size:28px;line-height:1.15;font-weight:700}
 .kpi b small{font-size:13px;font-weight:600;color:var(--muted)}
 .kpi span{font-size:13px;color:var(--muted)}
-.kpi.hot{background:var(--amber-l);border-color:var(--amber)}
-.kpi.hot b,.kpi.hot span{color:var(--amber)}
+.kpi.warm{background:var(--amber-l);border-color:var(--amber)}
+.kpi.warm b,.kpi.warm span{color:var(--amber)}
+.kpi b{font-size:30px}
+.seg2{display:flex;gap:2px;padding:3px;background:var(--surface);border:1px solid var(--line);border-radius:9px;flex-wrap:wrap}
+.seg2 button{border:none;background:transparent;font-size:13.5px;min-height:34px;padding:0 12px;border-radius:6px;cursor:pointer;color:var(--ink)}
+.seg2 button[aria-pressed="true"]{background:var(--navy);color:var(--on-pri);font-weight:600}
+.seg2 button:focus-visible{outline:2px solid var(--navy)}
 .dgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:14px;align-items:start}
 .col{display:flex;flex-direction:column;gap:14px;min-width:0}
 .hz{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -240,7 +245,7 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
@@ -256,7 +261,7 @@ const SEGS = ['Healthcare', 'Education', 'Public Sector', 'Corporate (Office Bui
 const SEG_TH = { 'Healthcare': 'โรงพยาบาล / Healthcare', 'Education': 'การศึกษา', 'Public Sector': 'ภาครัฐ', 'Corporate (Office Buildings)': 'อาคารสำนักงาน', 'Manufacturing (Factories)': 'โรงงาน', 'Residential': 'ที่พักอาศัย', 'Retails (shopping malls)': 'ค้าปลีก' };
 const Z_TH = { active: 'ยังใช้บริการ ก.ย. 2021', starting: 'เริ่มสัญญาใหม่ Q4 2021', ended: 'หลุดจาก AFM ระหว่างปี 2021', dormant: 'ไม่มีรายได้ปี 2021' };
 const MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-const CFG0 = { term: 3, prep: 6, owners: ['MKT-1', 'MKT-2', 'MKT-3'], w: { seg: 30, time: 25, size: 20, scope: 15, weak: 10 },
+const CFG0 = { term: 3, prep: 6, owners: ['Mr.Kittanan ONSEE', 'Mrs.Chayanin SRISUTUM', 'Mr.Piyangun ONSEE'], w: { seg: 30, time: 25, size: 20, scope: 15, weak: 10 },
   segW: { 'Healthcare': 100, 'Education': 60, 'Public Sector': 60, 'Corporate (Office Buildings)': 50, 'Manufacturing (Factories)': 50, 'Residential': 30, 'Retails (shopping malls)': 30 } };
 const HZ_END = 2031;
 
@@ -386,6 +391,7 @@ function applyData(d) {
   const o = {}; (d.sites || []).forEach(s => { if (s.code) o[s.code] = s; }); S.over = o;
   S.logs = d.logs || []; S.actions = d.actions || []; S.users = d.users || [];
   S.cfg = Object.assign(JSON.parse(JSON.stringify(CFG0)), d.config || {});
+  if ((S.cfg.owners || []).join() === 'MKT-1,MKT-2,MKT-3') S.cfg.owners = CFG0.owners.slice();
 }
 /** บันทึกเบื้องหลังตามลำดับ: แสดงผลทันที แล้วส่งขึ้น Sheet */
 const Q = []; let qBusy = false;
@@ -478,7 +484,8 @@ function shell(page, html) {
 
 /* ===== dashboard ===== */
 function vDash() {
-  const A = allSites(), t = ym(today()), y0 = +t.slice(0, 4);
+  const own = S.dashOwner || '', owners = S.cfg.owners || [];
+  const A = allSites().filter(s => !own || s.owner === own), t = ym(today()), y0 = +t.slice(0, 4);
   const hc = A.filter(s => s.seg === 'Healthcare');
   const by = { Outsource: 0, 'In-house': 0, Hybrid: 0, 'ไม่ทราบ': 0 }; A.forEach(s => by[s.sourcing] = (by[s.sourcing] || 0) + 1);
   const verified = A.filter(s => s.verified).length;
@@ -501,9 +508,11 @@ function vDash() {
   const pend = S.actions.filter(a => a.status === 'open').sort((a, b) => a.due < b.due ? -1 : 1).slice(0, 8);
   const fuH = pend.length ? pend.map(a => { const s = S.over[a.site] || REFIX[a.site] || {}; return `<div class="fu"><span class="d ${a.due < today() ? 'late' : ''}">${fmtD(a.due)}</span><span style="min-width:0"><a href="#site-${esc(a.site)}">${esc(s.name || s.n || a.site)}</a><span class="m">${esc(a.msg)}${a.owner ? ' · ' + esc(a.owner) : ''}</span></span></div>`; }).join('') : '<div class="hint">ยังไม่มี Follow-up · ตั้งได้จากหน้ารายละเอียดลูกค้า</div>';
   shell('dash', `
-  <div class="topline"><div><h1>โอกาสประมูลสัญญา FM 2027–2031</h1><div class="sub">${A.length} ไซต์ · Healthcare ${hc.length} ไซต์ · ยืนยันข้อมูลแล้ว ${verified} ไซต์</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button></div>
+  <div class="topline"><div><h1>โอกาสประมูลสัญญา FM 2027–2031</h1><div class="sub">${A.length} ไซต์ · Healthcare ${hc.length} ไซต์ · ยืนยันข้อมูลแล้ว ${verified} ไซต์${own ? ' · ผู้ดูแล ' + esc(own) : ''}</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button>
+    <div class="seg2" role="group" aria-label="ดูข้อมูลของ Sales"><button type="button" data-act="dashOwner" data-v="" aria-pressed="${!own}">ทั้งทีม</button>${owners.map(o => `<button type="button" data-act="dashOwner" data-v="${esc(o)}" aria-pressed="${own === o}">${esc(o)}</button>`).join('')}</div></div>
+  ${own && !A.length ? `<div class="notice" style="margin-bottom:14px">${esc(own)} ยังไม่มีไซต์ที่ดูแล · กำหนดผู้ดูแลได้ที่ปุ่ม "แก้ไขข้อมูล" ในหน้ารายละเอียดลูกค้า</div>` : ''}
   <div class="kpis">
-    <button class="kpi hot" data-act="goYear" data-v="2027"><b>${b27.length}</b><span>ไซต์ครบรอบประมูลปี 2027 · Healthcare ${b27h.length}</span></button>
+    <button class="kpi warm" data-act="goYear" data-v="2027"><b>${b27.length}</b><span>ไซต์ครบรอบประมูลปี 2027 · Healthcare ${b27h.length}</span></button>
     <button class="kpi" data-act="goYear" data-v="2027"><b>${fmtM(b27.reduce((a, x) => a + (+x.s.value || 0), 0))}<small>/เดือน</small></b><span>มูลค่าสัญญาที่เปิดประมูลปี 2027</span></button>
     <button class="kpi" data-act="goPrep"><b>${prepNow.length}</b><span>อยู่ในช่วงเตรียมประมูล (≤ ${S.cfg.prep} เดือนก่อนหมดสัญญา)</span></button>
     <button class="kpi" data-act="goSrc" data-v="Outsource"><b>${by.Outsource}<small> / ${A.length}</small></b><span>จ้าง Outsource · ทำเอง ${by['In-house']} · ไม่ทราบ ${by['ไม่ทราบ']}</span></button>
@@ -766,6 +775,7 @@ function render() {
 $('#dlg').addEventListener('close', () => { if (S._pending) { S._pending = false; render(); } });
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
 const ACT = {
+  dashOwner: el => { S.dashOwner = el.dataset.v; vDash(); },
   goYear: el => goList({ year: el.dataset.v }), goPrep: () => goList({ year: 'prep' }),
   goSeg: el => goList({ seg: [el.dataset.v] }), goSrc: el => goList({ src: [el.dataset.v] }),
   fchip: el => { const a = S.f[el.dataset.k], v = el.dataset.v, i = a.indexOf(v); i >= 0 ? a.splice(i, 1) : a.push(v); el.setAttribute('aria-pressed', i < 0); renderResults(); },
