@@ -54,6 +54,13 @@ h1,h2,h3{text-wrap:balance}
 .nav a:hover{background:var(--sunk)}
 .nav a[aria-current="page"]{background:var(--navy-l);color:var(--navy);font-weight:600}
 .nav svg{width:18px;height:18px;flex:none}
+.ngrp{display:flex;flex-direction:column;gap:2px}
+.ngrp+.ngrp{margin-top:14px}
+.ngrp.nset{padding-top:12px;border-top:1px solid var(--line)}
+.nhead{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:0 12px 4px;line-height:1.3}
+.nnum{flex:none;width:17px;height:17px;border-radius:50%;background:var(--navy-l);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;font-size:10.5px}
+.nav a{padding-left:14px}
+@media (max-width:980px){.nhead{display:none}.ngrp{flex-direction:row}.ngrp+.ngrp{margin-top:0;margin-left:8px;padding-left:8px;border-left:1px solid var(--line)}.ngrp.nset{padding-top:0;border-top:0}}
 .badge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;font-size:12px;padding:0 7px;line-height:20px;font-weight:600}
 .side-foot{margin-top:auto;font-size:12.5px;color:var(--muted);padding:12px 6px 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .ucard{display:flex;gap:10px;align-items:center}
@@ -299,7 +306,7 @@ tr.tot td{font-weight:700;background:var(--sunk)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* รายชื่อลูกค้าเป้าหมาย TKO Group โหลดจาก Google Sheet (แท็บ TKO_Group_Client) หลังเข้าสู่ระบบ
@@ -519,10 +526,16 @@ async function boot() {
 }
 
 /* ===== shell ===== */
-const NAV = [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell'], ['biz', 'Business Model', 'biz'], ['settings', 'ตั้งค่า', 'gear']];
+// เมนูแบ่ง 2 โมดูล · ตั้งค่าอยู่ท้ายสุด
+const NAV = [
+  ['Business & Revenue Management', [['biz', 'Business Model', 'biz']]],
+  ['Client Management', [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell']]],
+  ['', [['settings', 'ตั้งค่า', 'gear']]]
+];
 function shell(page, html) {
   const od = S.actions.filter(a => a.status === 'open' && a.due < today()).length;
-  const nav = NAV.map(([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`).join('');
+  const link = ([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`;
+  const nav = NAV.map(([g, items], gi) => `<div class="ngrp${g ? '' : ' nset'}" ${g ? `role="group" aria-label="${esc(g)}"` : ''}>${g ? `<div class="nhead"><span class="nnum">${gi + 1}</span>${esc(g)}</div>` : ''}${items.map(link).join('')}</div>`).join('');
   const u = S.user || {}, ini = String(u.name || u.email || '?').replace(/^(mr|mrs|ms)\.?\s*/i, '').trim().charAt(0).toUpperCase();
   const foot = `<div class="ucard"><span class="av" aria-hidden="true">${esc(ini)}</span><div style="min-width:0"><b>${esc(u.name || '')}</b><span class="em">${esc(u.email || '')}</span><span class="rl">${u.role === 'Admin' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}</span></div></div>
     <div class="clkrow"><span class="clk" id="clock">${clockText()}</span><span id="sync" class="syn">${Q.length ? '' : (S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'ข้อมูลบันทึกอัตโนมัติ')}</span></div>
