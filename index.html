@@ -58,7 +58,6 @@ h1,h2,h3{text-wrap:balance}
 .ngrp+.ngrp{margin-top:14px}
 .ngrp.nset{padding-top:12px;border-top:1px solid var(--line)}
 .nhead{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:0 12px 4px;line-height:1.3}
-.nnum{flex:none;width:17px;height:17px;border-radius:50%;background:var(--navy-l);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;font-size:10.5px}
 .nav a{padding-left:14px}
 @media (max-width:980px){.nhead{display:none}.ngrp{flex-direction:row}.ngrp+.ngrp{margin-top:0;margin-left:8px;padding-left:8px;border-left:1px solid var(--line)}.ngrp.nset{padding-top:0;border-top:0}}
 .badge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;font-size:12px;padding:0 7px;line-height:20px;font-weight:600}
@@ -88,6 +87,21 @@ h1,h2,h3{text-wrap:balance}
 .btn.ghost{border-color:transparent;background:transparent}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel,.kpi,.card,.trk>div,.cvb,.hzc{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.panel:hover,.kpi:hover,.card:hover,.trk>div:hover,.cvb:hover{transform:translateY(-3px);border-color:#3b8eea;box-shadow:0 0 0 2px rgba(59,142,234,.55),0 12px 26px rgba(31,78,120,.16)}
+.kpi:focus-visible{transform:translateY(-3px);box-shadow:0 0 0 2px var(--navy),0 10px 24px rgba(31,78,120,.14)}
+@media (prefers-reduced-motion: reduce){.panel:hover,.kpi:hover,.card:hover,.trk>div:hover,.cvb:hover{transform:none}}
+.modrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.modrow b{font-size:14.5px}
+.swt{display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative}
+.swt input{position:absolute;opacity:0;width:44px;height:24px;margin:0;cursor:pointer}
+.swt span{width:44px;height:24px;border-radius:12px;background:var(--line);position:relative;transition:background .15s}
+.swt span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.swt input:checked+span{background:var(--navy)}.swt input:checked+span::after{left:23px}
+.swt input:focus-visible+span{outline:2px solid var(--navy);outline-offset:2px}
+.swt em{font-style:normal;font-size:13px;font-weight:600;min-width:34px}
+@media (max-width:600px){.modrow{grid-template-columns:1fr auto}.modrow .tag{display:none}}
+
 .panel h2{margin:0 0 12px;font-size:15.5px;font-weight:700}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .ph h2{margin:0}
@@ -306,7 +320,7 @@ tr.tot td{font-weight:700;background:var(--sunk)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* รายชื่อลูกค้าเป้าหมาย TKO Group โหลดจาก Google Sheet (แท็บ TKO_Group_Client) หลังเข้าสู่ระบบ
@@ -528,14 +542,19 @@ async function boot() {
 /* ===== shell ===== */
 // เมนูแบ่ง 2 โมดูล · ตั้งค่าอยู่ท้ายสุด
 const NAV = [
-  ['Business & Revenue Management', [['biz', 'Business Model', 'biz']]],
-  ['Client Management', [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell']]],
-  ['', [['settings', 'ตั้งค่า', 'gear']]]
+  ['Business & Revenue Management', [['biz', 'Business Model', 'biz']], 'biz'],
+  ['Client Management', [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell']], 'client'],
+  ['', [['settings', 'ตั้งค่า', 'gear']], '']
 ];
+const MOD_PAGES = { biz: ['biz'], client: ['dash', 'list', 'board', 'follow', 'site'] };
+const isAdmin = () => !!(S.user && S.user.role === 'Admin');
+/** โมดูลที่ผู้ใช้คนนี้เห็น: Business & Revenue เฉพาะ Admin · ทั้งสองโมดูลซ่อนได้จากหน้าตั้งค่า */
+function modOn(m) { if (m === 'biz') return isAdmin() && ((S.cfg && S.cfg.modules) || {}).biz !== false; return !isAdmin() || ((S.cfg && S.cfg.modules) || {}).client !== false; }
+function homePage() { return modOn('client') ? 'dash' : modOn('biz') ? 'biz' : 'settings'; }
 function shell(page, html) {
   const od = S.actions.filter(a => a.status === 'open' && a.due < today()).length;
   const link = ([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`;
-  const nav = NAV.map(([g, items], gi) => `<div class="ngrp${g ? '' : ' nset'}" ${g ? `role="group" aria-label="${esc(g)}"` : ''}>${g ? `<div class="nhead"><span class="nnum">${gi + 1}</span>${esc(g)}</div>` : ''}${items.map(link).join('')}</div>`).join('');
+  const nav = NAV.filter(([, , m]) => !m || modOn(m)).map(([g, items]) => `<div class="ngrp${g ? '' : ' nset'}" ${g ? `role="group" aria-label="${esc(g)}"` : ''}>${g ? `<div class="nhead">${esc(g)}</div>` : ''}${items.map(link).join('')}</div>`).join('');
   const u = S.user || {}, ini = String(u.name || u.email || '?').replace(/^(mr|mrs|ms)\.?\s*/i, '').trim().charAt(0).toUpperCase();
   const foot = `<div class="ucard"><span class="av" aria-hidden="true">${esc(ini)}</span><div style="min-width:0"><b>${esc(u.name || '')}</b><span class="em">${esc(u.email || '')}</span><span class="rl">${u.role === 'Admin' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}</span></div></div>
     <div class="clkrow"><span class="clk" id="clock">${clockText()}</span><span id="sync" class="syn">${Q.length ? '' : (S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'ข้อมูลบันทึกอัตโนมัติ')}</span></div>
@@ -951,6 +970,9 @@ function vSettings() {
     <form id="usrf"><div id="ulist">${S.users.map((u, i) => userRow(u, i)).join('')}</div>
     <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn" data-act="addUser">+ เพิ่มผู้ใช้</button><button class="btn pri">บันทึกผู้ใช้</button></div></form>
     <p class="hint" style="margin:10px 0 0">imatomsapps1976@gmail.com เป็น Admin ถาวร · ปิดสิทธิ์ผู้ใช้แล้ว เครื่องที่เคยเข้าระบบจะถูกออกจากระบบทันที</p></section>
+  <section class="panel" style="margin-top:14px"><div class="ph"><h2>การแสดงโมดูล</h2><span class="hint">มีผลกับเมนูของทุกคนทันทีที่กดเปลี่ยน</span></div>
+    ${[['biz', 'Business & Revenue Management', 'Business Model · เป้ารายได้ · ยอดจริงรายเดือน', 'เห็นเฉพาะ Admin'], ['client', 'Client Management', 'ภาพรวม · ฐานลูกค้า · ClientSite · Follow-up', 'เห็นทุกคน']].map(([k, t, d, who]) => { const on = !S.cfg.modules || S.cfg.modules[k] !== false; return `<div class="modrow"><div style="min-width:0"><b>${t}</b><div class="hint">${d}</div></div><span class="tag ${k === 'biz' ? 'nv' : 'gr'}">${who}</span><label class="swt"><input type="checkbox" id="mod_${k}" data-mod="${k}" ${on ? 'checked' : ''}><span aria-hidden="true"></span><em>${on ? 'แสดง' : 'ซ่อน'}</em></label></div>`; }).join('')}
+    <p class="hint" style="margin:10px 0 0">ผู้ใช้ที่ไม่ใช่ Admin เห็นเฉพาะ Client Management เสมอ · ปิดโมดูลแล้วข้อมูลยังอยู่ครบ เปิดกลับได้ทุกเมื่อ</p></section>
   <section class="panel" style="margin-top:14px"><div class="ph"><h2>สำรองข้อมูล</h2><span class="hint">สำรองอัตโนมัติทุกวันอาทิตย์ 02:00 น. · เก็บ 12 ชุดล่าสุด</span></div>
     ${S.backup ? `<dl class="kv"><div><dt>สำรองล่าสุด</dt><dd>${fmtD(S.backup.at)} ${esc(String(S.backup.at).slice(11, 16))} น.</dd></div><div><dt>ไฟล์</dt><dd><a href="${esc(S.backup.url)}" target="_blank" rel="noopener">${esc(S.backup.name)}</a></dd></div><div><dt>โฟลเดอร์ใน Google Drive</dt><dd><a href="${esc(S.backup.folder)}" target="_blank" rel="noopener">TKO_iMATOMsClientMKT_Backups</a></dd></div></dl>`
       : '<div class="notice">ยังไม่มีไฟล์สำรอง · เปิด Apps Script แล้วรันฟังก์ชัน setupWeeklyBackup ครั้งเดียว เพื่อเริ่มสำรองอัตโนมัติ</div>'}
@@ -966,7 +988,7 @@ function vSettings() {
   };
   $('#cfgf').onsubmit = e => {
     e.preventDefault(); const fd = new FormData(e.target), n = (k, d) => { const v = +fd.get(k); return isNaN(v) ? d : v; };
-    const cfg = { term: Math.max(1, n('term', 3)), prep: Math.max(0, n('prep', 6)), owners: String(fd.get('owners') || '').split('\n').map(x => x.trim()).filter(Boolean), w: {}, segW: {} };
+    const cfg = { ...S.cfg, term: Math.max(1, n('term', 3)), prep: Math.max(0, n('prep', 6)), owners: String(fd.get('owners') || '').split('\n').map(x => x.trim()).filter(Boolean), w: {}, segW: {} };
     Object.keys(lab).forEach(k => cfg.w[k] = Math.max(0, n('w_' + k, 0)));
     SEGS.forEach((g, i) => cfg.segW[g] = Math.min(100, Math.max(0, n('sg_' + i, 40))));
     saveCfg(cfg);
@@ -1061,9 +1083,11 @@ function render() {
   const fid = document.activeElement && document.activeElement.id, sel = fid && document.activeElement.selectionStart;
   if (!S.user || !S.token) return;
   if ($('#dlg').open && !S._force) { S._pending = true; return; }
-  const h = (location.hash || '#dash').slice(1);
+  let h = (location.hash || '').slice(1) || homePage();
+  const pg = h.startsWith('site-') ? 'site' : h;
+  if ((MOD_PAGES.biz.includes(pg) && !modOn('biz')) || (MOD_PAGES.client.includes(pg) && !modOn('client'))) h = homePage();
   if (h.startsWith('site-')) vSite(h.slice(5));
-  else ({ dash: vDash, list: vList, board: vBoard, follow: vFollow, biz: vBiz, settings: vSettings }[h] || vDash)();
+  else ({ dash: vDash, list: vList, board: vBoard, follow: vFollow, biz: vBiz, settings: vSettings }[h] || ({ dash: vDash, biz: vBiz, settings: vSettings })[homePage()])();
   if (fid) { const el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); try { if (sel != null) el.setSelectionRange(sel, sel); } catch (e) { } } }
 }
 $('#dlg').addEventListener('close', () => { if (S._pending) { S._pending = false; render(); } });
@@ -1112,6 +1136,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.fsel) { S.f[t.dataset.fsel] = t.value; renderResults(); }
   else if (t.dataset.fchk) { S.f[t.dataset.fchk] = t.checked; renderResults(); }
+  else if (t.dataset.mod) { const mods = Object.assign({ biz: true, client: true }, S.cfg.modules || {}); mods[t.dataset.mod] = t.checked; if (!mods.biz && !mods.client) { t.checked = true; toast('ต้องแสดงอย่างน้อย 1 โมดูล'); return; } saveCfg({ ...S.cfg, modules: mods }); }
   else if (t.dataset.trline) { S.trackLine = t.value; vBiz(); }
   else if (t.dataset.bsel) { S.bf[t.dataset.bsel] = t.value; vBoard(); }
   else if (t.dataset.bchk) { S.bf[t.dataset.bchk] = t.checked; vBoard(); }
