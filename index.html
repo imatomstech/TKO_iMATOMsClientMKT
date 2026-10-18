@@ -299,7 +299,7 @@ tr.tot td{font-weight:700;background:var(--sunk)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
@@ -445,6 +445,7 @@ function applyData(d) {
   if (d.ref) { REF = d.ref; REFIX = Object.fromEntries(REF.map(r => [r.c, r])); }
   const o = {}; (d.sites || []).forEach(s => { if (s.code) o[s.code] = s; }); S.over = o;
   if (d.biz) S.biz = d.biz;
+  if ('backup' in d) S.backup = d.backup;
   S.logs = d.logs || []; S.actions = d.actions || []; S.users = d.users || [];
   S.cfg = Object.assign(JSON.parse(JSON.stringify(CFG0)), d.config || {});
   if ((S.cfg.owners || []).join() === 'MKT-1,MKT-2,MKT-3') S.cfg.owners = CFG0.owners.slice();
@@ -959,7 +960,11 @@ function vSettings() {
   ${S.user && S.user.role === 'Admin' ? `<section class="panel" style="margin-top:14px"><div class="ph"><h2>ผู้ใช้งานระบบ</h2><span class="hint">เฉพาะอีเมลในรายการนี้ที่ขอรหัส OTP ได้</span></div>
     <form id="usrf"><div id="ulist">${S.users.map((u, i) => userRow(u, i)).join('')}</div>
     <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn" data-act="addUser">+ เพิ่มผู้ใช้</button><button class="btn pri">บันทึกผู้ใช้</button></div></form>
-    <p class="hint" style="margin:10px 0 0">imatomsapps1976@gmail.com เป็น Admin ถาวร · ปิดสิทธิ์ผู้ใช้แล้ว เครื่องที่เคยเข้าระบบจะถูกออกจากระบบทันที</p></section>` : ''}`);
+    <p class="hint" style="margin:10px 0 0">imatomsapps1976@gmail.com เป็น Admin ถาวร · ปิดสิทธิ์ผู้ใช้แล้ว เครื่องที่เคยเข้าระบบจะถูกออกจากระบบทันที</p></section>
+  <section class="panel" style="margin-top:14px"><div class="ph"><h2>สำรองข้อมูล</h2><span class="hint">สำรองอัตโนมัติทุกวันอาทิตย์ 02:00 น. · เก็บ 12 ชุดล่าสุด</span></div>
+    ${S.backup ? `<dl class="kv"><div><dt>สำรองล่าสุด</dt><dd>${fmtD(S.backup.at)} ${esc(String(S.backup.at).slice(11, 16))} น.</dd></div><div><dt>ไฟล์</dt><dd><a href="${esc(S.backup.url)}" target="_blank" rel="noopener">${esc(S.backup.name)}</a></dd></div><div><dt>โฟลเดอร์ใน Google Drive</dt><dd><a href="${esc(S.backup.folder)}" target="_blank" rel="noopener">TKO_iMATOMsClientMKT_Backups</a></dd></div></dl>`
+      : '<div class="notice">ยังไม่มีไฟล์สำรอง · เปิด Apps Script แล้วรันฟังก์ชัน setupWeeklyBackup ครั้งเดียว เพื่อเริ่มสำรองอัตโนมัติ</div>'}
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button type="button" class="btn" data-act="backupNow">สำรองข้อมูลตอนนี้</button></div></section>` : ''}`);
   const uf = $('#usrf');
   if (uf) uf.onsubmit = e => {
     e.preventDefault();
@@ -1104,6 +1109,7 @@ const ACT = {
   closeDlg: () => $('#dlg').close(),
   cfgReset: () => saveCfg(JSON.parse(JSON.stringify(CFG0))),
   refresh: () => refresh(false),
+  backupNow: async el => { if (Q.length) { toast('รอบันทึกข้อมูลให้เสร็จก่อน'); return; } el.disabled = true; el.textContent = 'กำลังสำรองข้อมูล…'; await enqueue('backup', {}, 'สำรองข้อมูลแล้ว'); el.disabled = false; el.textContent = 'สำรองข้อมูลตอนนี้'; },
   logout: async () => { if (Q.length) { toast('รอบันทึกให้เสร็จก่อนออกจากระบบ'); return; } try { await api('logout'); } catch (e) { } signOut(); },
   addUser: () => { const l = $('#ulist'), i = l.children.length + Date.now() % 1000; l.insertAdjacentHTML('beforeend', userRow({ email: '', name: '', role: 'Member', active: true }, i)); l.lastElementChild.querySelector('input').focus(); },
   delUser: el => el.closest('.urow').remove()
