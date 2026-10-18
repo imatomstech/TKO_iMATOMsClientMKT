@@ -55,7 +55,20 @@ h1,h2,h3{text-wrap:balance}
 .nav a[aria-current="page"]{background:var(--navy-l);color:var(--navy);font-weight:600}
 .nav svg{width:18px;height:18px;flex:none}
 .badge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;font-size:12px;padding:0 7px;line-height:20px;font-weight:600}
-.side-foot{margin-top:auto;font-size:12.5px;color:var(--muted);padding:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.side-foot{margin-top:auto;font-size:12.5px;color:var(--muted);padding:12px 6px 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.ucard{display:flex;gap:10px;align-items:center}
+.ucard .av{flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy-l);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.ucard b{display:block;color:var(--ink);font-size:13.5px;line-height:1.3}
+.ucard .em{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ucard .rl{display:inline-block;margin-top:2px;font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;background:var(--sunk)}
+.clkrow{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;background:var(--sunk)}
+.clkrow .clk{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap}
+.clkrow .syn{font-size:11.5px}
+.fbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}.fbtns .btn{padding:0 6px;font-size:12.5px}
+.flinks{display:flex;gap:6px;align-items:center;font-size:12.5px}.flinks .linkbtn{font-weight:500;font-size:12.5px}
+.fnote{font-size:11px;opacity:.8}
+.acts.m-only{display:none}
+@media (max-width:980px){.acts.m-only{display:flex;gap:6px}}
 .main{min-width:0;padding-block:26px 80px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
 .topline{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .topline h1{margin:0;font-size:24px;line-height:1.25;font-weight:700;flex:1 1 auto}
@@ -243,6 +256,16 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 tr.tot td{font-weight:700;background:var(--sunk)}
 .spark .tl2{stroke:var(--amber);stroke-width:2;stroke-dasharray:6 4}
 .legend i.dash{background:none;border-top:2px dashed var(--amber);height:0;width:14px;vertical-align:3px}
+.trk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.trk>div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.trk span{font-size:12.5px;color:var(--muted)}.trk b{font-size:22px;line-height:1.2}.trk b small,.trk>div>small{font-size:12.5px;font-weight:600;color:var(--muted)}
+.trk .feas-gr span,.trk .feas-gr small,.trk .feas-am span,.trk .feas-am small,.trk .feas-rd span,.trk .feas-rd small{color:inherit}
+.trs .b-ok{fill:var(--green)}.trs .b-low{fill:var(--red)}.trs .b-won{fill:var(--navy)}.trs .b-pipe{fill:var(--bar2)}
+.trs .ln-t{fill:none;stroke:var(--amber);stroke-width:2;stroke-dasharray:6 4}.trs .ln-a{fill:none;stroke:var(--green);stroke-width:2.5}.trs .ln-f{fill:none;stroke:var(--navy);stroke-width:2;stroke-dasharray:2 4}
+.trs .dt-a{fill:var(--green)}.trs .dt-t{fill:var(--amber)}.trs .dt-f{fill:var(--navy)}
+.legend i.dot{background:none;border-top:2px dotted var(--navy);height:0;width:14px;vertical-align:3px}
+.actd{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.actd summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--navy);min-height:32px;display:flex;align-items:center}
+.acttbl td{padding:5px 6px}.acttbl th{padding:8px 6px}
 .probs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px}
 .h3{font-size:14px;margin:16px 0 8px}
 .linkbtn{all:unset;cursor:pointer;color:var(--navy);font-weight:600}.linkbtn:hover{text-decoration:underline}.linkbtn:focus-visible{outline:2px solid var(--navy)}
@@ -276,7 +299,7 @@ tr.tot td{font-weight:700;background:var(--sunk)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
@@ -438,7 +461,7 @@ async function qRun() {
   catch (e) { Q.shift(); toast('บันทึกไม่สำเร็จ: ' + e.message); job.res(false); try { applyData((await api('bootstrap')).data); } catch (x) { } }
   qBusy = false; syncBadge(); if (!Q.length) render(); qRun();
 }
-function syncBadge() { const el = $('#sync'); if (el) el.innerHTML = Q.length ? '<span class="sync"><span class="spin" aria-hidden="true"></span>กำลังบันทึก ' + Q.length + ' รายการ…</span>' : 'บันทึกลง Google Sheet แล้ว'; }
+function syncBadge() { const el = $('#sync'); if (el) el.innerHTML = Q.length ? '<span class="sync"><span class="spin" aria-hidden="true"></span>กำลังบันทึก ' + Q.length + ' รายการ…</span>' : (S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'บันทึกลง Google Sheet แล้ว'); }
 window.addEventListener('beforeunload', e => { if (Q.length) { e.preventDefault(); e.returnValue = ''; } });
 
 async function saveSite(code, patch, msg) {
@@ -511,12 +534,16 @@ const NAV = [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลู�
 function shell(page, html) {
   const od = S.actions.filter(a => a.status === 'open' && a.due < today()).length;
   const nav = NAV.map(([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`).join('');
-  const foot = `<div><b style="color:var(--ink)">${esc((S.user && S.user.name) || '')}</b><br>${esc((S.user && S.user.email) || '')} · ${esc((S.user && S.user.role) || '')}</div><div id="sync">${Q.length ? '' : 'บันทึกลง Google Sheet แล้ว'}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="refresh">รีเฟรชข้อมูล</button><button class="btn sm ghost" data-act="logout">ออกจากระบบ</button></div>`;
-  $('#root').innerHTML = `<div class="app"><aside class="side"><div class="brand"><b>TKO · iMATOMs</b><span>Client MKT</span><small>FM Engineering &amp; Hard Service</small></div><nav class="nav" aria-label="เมนูหลัก">${nav}</nav><div class="side-foot">${foot}<div>ข้อมูลอ้างอิง: P&amp;L AFM ม.ค.–ก.ย. 2021</div></div></aside><main class="main" id="main">${html}</main></div>`;
+  const u = S.user || {}, ini = String(u.name || u.email || '?').replace(/^(mr|mrs|ms)\.?\s*/i, '').trim().charAt(0).toUpperCase();
+  const foot = `<div class="ucard"><span class="av" aria-hidden="true">${esc(ini)}</span><div style="min-width:0"><b>${esc(u.name || '')}</b><span class="em">${esc(u.email || '')}</span><span class="rl">${u.role === 'Admin' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}</span></div></div>
+    <div class="clkrow"><span class="clk" id="clock">${clockText()}</span><span id="sync" class="syn">${Q.length ? '' : (S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'ข้อมูลบันทึกอัตโนมัติ')}</span></div>
+    <div class="fbtns"><button class="btn pri sm" data-act="saveNow">Save data</button><button class="btn sm" data-act="exportDash">Export CSV</button></div>
+    <div class="flinks"><button class="linkbtn" data-act="refresh">รีเฟรชข้อมูล</button><span aria-hidden="true">·</span><button class="linkbtn" data-act="logout">ออกจากระบบ</button></div>`;
+  $('#root').innerHTML = `<div class="app"><aside class="side"><div class="brand"><b>TKO · iMATOMs</b><span>Client MKT</span><small>FM Engineering &amp; Hard Service</small></div><nav class="nav" aria-label="เมนูหลัก">${nav}</nav><div class="side-foot">${foot}<div class="fnote">ข้อมูลอ้างอิง P&amp;L AFM ม.ค.–ก.ย. 2021</div></div></aside><main class="main" id="main">${html}</main></div>`;
 }
 
-const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-function clockText() { const d = new Date(); return 'วัน' + DAY_TH[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' น.'; }
+const DAY_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+function clockText() { const d = new Date(); return DAY_TH[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' น.'; }
 setInterval(() => { const el = document.getElementById('clock'); if (el) el.textContent = clockText(); }, 20000);
 /** รอให้รายการที่ค้างบันทึกเสร็จ แล้วดึงข้อมูลล่าสุดจาก Google Sheet */
 async function saveNow(btn) {
@@ -595,12 +622,17 @@ function bizCalc() {
   const tRev = BIZ.reduce((a, b) => a + L[b.k].tRev, 0), tGM = BIZ.reduce((a, b) => a + L[b.k].tGM, 0);
   const pipe = BIZ.reduce((a, b) => a + L[b.k].pipe, 0), pipeGM = BIZ.reduce((a, b) => a + L[b.k].pipe * L[b.k].p.margin / 100, 0);
   // รายเดือน: FM รับรู้ตั้งแต่เดือนเริ่มสัญญา · ธุรกิจอื่นกระจายเท่ากัน 12 เดือน
-  const mon = Array(12).fill(0);
+  // แยกตามธุรกิจ: won = ไซต์ที่ได้งานแล้ว · pipe = ไซต์ที่ยังอยู่ระหว่างขาย (ถ่วงน้ำหนัก)
+  const lm = {}; BIZ.forEach(({ k }) => lm[k] = { won: Array(12).fill(0), pipe: Array(12).fill(0) });
   rows.forEach(({ s, x }) => {
-    if (x.lines.fm && x.start) { const m0 = +x.start.slice(5, 7) - 1, per = x.lines.fm / x.months; for (let i = m0; i < 12; i++) mon[i] += per; }
-    Object.entries(x.lines).forEach(([k, v]) => { if (k !== 'fm') for (let i = 0; i < 12; i++) mon[i] += v / 12; });
+    const bucket = s.stage === 'won' ? 'won' : 'pipe';
+    Object.entries(x.lines).forEach(([k, v]) => {
+      if (k === 'fm' && x.start) { const m0 = +x.start.slice(5, 7) - 1, per = v / x.months; for (let i = m0; i < 12; i++) lm[k][bucket][i] += per; }
+      else for (let i = 0; i < 12; i++) lm[k][bucket][i] += v / 12;
+    });
   });
-  return { P, L, rows, tRev, tGM, pipe, pipeGM, mon, cov: tRev ? pipe / tRev : 0 };
+  const mon = Array(12).fill(0).map((_, i) => BIZ.reduce((a, b) => a + lm[b.k].won[i] + lm[b.k].pipe[i], 0));
+  return { P, L, rows, lm, tRev, tGM, pipe, pipeGM, mon, cov: tRev ? pipe / tRev : 0 };
 }
 const feas = c => c >= 1 ? ['สูง', 'gr', 'Pipeline ถ่วงน้ำหนักครอบคลุมเป้าแล้ว'] : c >= .6 ? ['ปานกลาง', 'am', 'ต้องเร่งขยับสถานะดีลหรือหาลูกค้าเพิ่ม'] : ['ต่ำ', 'rd', 'Pipeline ยังห่างจากเป้ามาก ควรเพิ่มไซต์เป้าหมายหรือปรับเป้า'];
 
@@ -614,13 +646,6 @@ function bizSummary() {
   const C = bizCalc(), F = feas(C.cov), gap = Math.max(0, C.tRev - C.pipe);
   const fmAvg = (() => { const v = allSites().map(s => +s.value || 0).filter(Boolean); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; })();
   const avgGain = (C.P.prob.proposal - C.P.prob.target) / 100 * (fmAvg || C.P.lines.fm.price) * 9;
-  const mx = Math.max(1, ...C.mon, C.tRev / 12);
-  const W = 640, H = 190, Lp = 50, B = 22, T = 10, bw = (W - Lp - 6) / 12, yv = v => T + (H - T - B) * (1 - v / mx);
-  const chart = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="รายได้รายเดือนปี ${Y} จาก Pipeline เทียบเป้า">
-    ${[0, mx / 2, mx].map(v => `<line class="gl" x1="${Lp}" x2="${W - 4}" y1="${yv(v)}" y2="${yv(v)}"/><text x="${Lp - 6}" y="${yv(v) + 4}" text-anchor="end">${fmtM(v)}</text>`).join('')}
-    ${C.mon.map((v, i) => `<rect class="rb" x="${Lp + i * bw + 4}" y="${yv(v)}" width="${bw - 8}" height="${Math.max(0, H - B - yv(v))}"><title>${MON[i]} ${Y}: ${fmtN(v)} บาท</title></rect><text x="${Lp + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${MON[i]}</text>`).join('')}
-    <line x1="${Lp}" x2="${W - 4}" y1="${yv(C.tRev / 12)}" y2="${yv(C.tRev / 12)}" class="tl2"/></svg>
-    <div class="legend"><span><i style="background:var(--navy)"></i>Pipeline ถ่วงน้ำหนัก</span><span><i class="dash"></i>เป้าเฉลี่ยต่อเดือน ${fmtM(C.tRev / 12)}</span></div>`;
   const rowsT = BIZ.map(({ k, n }) => { const l = C.L[k], cv = l.tRev ? l.pipe / l.tRev : 0, f = feas(cv); return `<tr><td style="min-width:170px"><button class="linkbtn" data-act="bizTab" data-v="${k}">${esc(n)}</button><div class="hint">${esc(l.p.unit)}</div></td>
     <td class="num">${l.p.target}</td><td class="num">${fmtN(l.p.price)}</td><td class="num"><b>${fmtN(l.tRev)}</b><div class="hint">${fmtM(l.low)}–${fmtM(l.high)}</div></td><td class="num">${fmtN(l.tGM)}<div class="hint">${l.p.margin}%</div></td>
     <td class="num">${l.n}<div class="hint">ถ่วง ${l.wN.toFixed(1)}</div></td><td class="num">${fmtN(l.pipe)}</td><td><span class="cov"><i><u class="${f[1]}" style="width:${Math.min(100, cv * 100)}%"></u></i><b>${Math.round(cv * 100)}%</b></span></td></tr>`; }).join('');
@@ -648,8 +673,79 @@ function bizSummary() {
       <div class="tblwrap"><table><thead><tr><th>ธุรกิจ</th><th class="num">โครงการ</th><th class="num">ราคาเฉลี่ย</th><th class="num">เป้ารายได้</th><th class="num">เป้ากำไร</th><th class="num">ไซต์ในฐาน</th><th class="num">Pipeline</th><th>ครอบคลุมเป้า</th></tr></thead><tbody>${rowsT}
       <tr class="tot"><td>รวม</td><td class="num">${BIZ.reduce((a, b) => a + C.L[b.k].p.target, 0)}</td><td></td><td class="num">${fmtN(C.tRev)}</td><td class="num">${fmtN(C.tGM)}</td><td></td><td class="num">${fmtN(C.pipe)}</td><td><b>${Math.round(C.cov * 100)}%</b></td></tr></tbody></table></div>
       ${gap ? `<p class="hint" style="margin:10px 0 0">ยังขาด <b style="color:var(--ink)">${fmtN(gap)}</b> บาท · ทุกไซต์ FM ที่ขยับจาก "ตั้งเป้า" เป็น "เสนอราคา" เพิ่ม Pipeline ราว ${fmtM(avgGain)} (คิดจากมูลค่าเฉลี่ยต่อไซต์ 9 เดือน)</p>` : ''}</section></div>
-  <div class="dgrid" style="margin-bottom:14px"><div class="col"><section class="panel"><div class="ph"><h2>รายได้รายเดือนปี ${Y} จาก Pipeline</h2><span class="hint">FM เริ่มนับจากเดือนที่สัญญาเดิมหมด</span></div><div style="overflow-x:auto">${chart}</div></section><section class="panel"><div class="ph"><h2>Pipeline ตาม Sales</h2><span class="hint">บาท ปี ${Y}</span></div>${ownH}</section></div><div class="col"><section class="panel"><div class="ph"><h2>ไซต์ที่สร้างรายได้มากที่สุด</h2><span class="hint">ถ่วงน้ำหนักตามโอกาส</span></div>${topH}</section></div></div>
+  ${bizTrack(C)}
+  <div class="dgrid" style="margin-bottom:14px"><div class="col"><section class="panel"><div class="ph"><h2>Pipeline ตาม Sales</h2><span class="hint">บาท ปี ${Y}</span></div>${ownH}</section></div><div class="col"><section class="panel"><div class="ph"><h2>ไซต์ที่สร้างรายได้มากที่สุด</h2><span class="hint">ถ่วงน้ำหนักตามโอกาส</span></div>${topH}</section></div></div>
   <div class="col"><section class="panel"><div class="ph"><h2>ตั้งเป้าปี ${Y}</h2><span class="hint">แก้ตัวเลขแล้วกดบันทึก ระบบคำนวณใหม่ทั้งหน้า</span></div>${form}</section><section class="panel hint" style="line-height:1.6"><b style="color:var(--ink)">วิธีคำนวณ</b><br>เป้า = โครงการ × ราคาเฉลี่ย × เดือนที่รับรู้รายได้<br>Pipeline = มูลค่าไซต์ × จำนวนเดือนในปี ${Y} × โอกาสตามสถานะดีล · บริการอื่นที่ติ๊กไว้ในหน้าลูกค้าคิดราคาเฉลี่ยของธุรกิจนั้น<br>ติ๊ก "บริการที่เสนอ" ได้ในหน้ารายละเอียดลูกค้า › แก้ไขข้อมูล</section></div>`;
+}
+/* ----- เป้าเทียบยอดจริงรายเดือน ----- */
+const z12 = () => Array(12).fill(0);
+function bizActual() { const a = (S.biz && S.biz.actual) || {}, o = {}; BIZ.forEach(({ k }) => { o[k] = z12().map((_, i) => +((a[k] || [])[i]) || 0); }); return o; }
+/** รวมตัวเลขรายเดือนของธุรกิจที่เลือก (all = ทุกธุรกิจ) */
+function trackSeries(C) {
+  const sel = S.trackLine || 'all', ks = sel === 'all' ? BIZ.map(b => b.k) : [sel], A = bizActual();
+  const sum = f => z12().map((_, i) => ks.reduce((a, k) => a + f(k, i), 0));
+  const tgt = sum(k => C.L[k].tRev / 12), act = sum((k, i) => A[k][i]), won = sum((k, i) => C.lm[k].won[i]), pipe = sum((k, i) => C.lm[k].pipe[i]);
+  const last = act.reduce((m, v, i) => v > 0 ? i : m, -1);
+  // คาดการณ์: เดือนที่มียอดจริงใช้ยอดจริง · เดือนที่เหลือใช้ดีลที่ได้งาน + Pipeline ถ่วงน้ำหนัก
+  const fc = z12().map((_, i) => i <= last ? act[i] : won[i] + pipe[i]);
+  return { sel, ks, A, tgt, act, won, pipe, last, fc };
+}
+function bizTrack(C) {
+  const T = trackSeries(C), cum = a => a.reduce((o, v, i) => (o.push((o[i - 1] || 0) + v), o), []), mode = S.trackMode || 'month';
+  const ytdA = T.act.reduce((a, v) => a + v, 0), ytdT = T.last >= 0 ? T.tgt.slice(0, T.last + 1).reduce((a, v) => a + v, 0) : 0;
+  const yrT = T.tgt.reduce((a, v) => a + v, 0), yrF = T.fc.reduce((a, v) => a + v, 0), pctY = ytdT ? ytdA / ytdT : 0;
+  const st = T.last < 0 ? ['ยังไม่มียอดจริง', ''] : pctY >= 1 ? ['ตามเป้า', 'gr'] : pctY >= .8 ? ['ใกล้เป้า', 'am'] : ['ต่ำกว่าเป้า', 'rd'];
+  const W = 900, H = 250, Lp = 58, B = 24, Tp = 12, bw = (W - Lp - 8) / 12, cx = i => Lp + i * bw + bw / 2;
+  let svg;
+  if (mode === 'cum') {
+    const ct = cum(T.tgt), ca = cum(T.act), cf = cum(T.fc), mx = Math.max(1, ...ct, ...cf);
+    const yv = v => Tp + (H - Tp - B) * (1 - v / mx), pl = (a, n) => a.slice(0, n).map((v, i) => `${cx(i)},${yv(v)}`).join(' ');
+    svg = `${[0, mx / 2, mx].map(v => `<line class="gl" x1="${Lp}" x2="${W - 4}" y1="${yv(v)}" y2="${yv(v)}"/><text x="${Lp - 6}" y="${yv(v) + 4}" text-anchor="end">${fmtM(v)}</text>`).join('')}
+      <polyline class="ln-t" points="${pl(ct, 12)}"/><polyline class="ln-f" points="${T.last >= 0 ? cf.slice(T.last).map((v, j) => `${cx(T.last + j)},${yv(v)}`).join(' ') : pl(cf, 12)}"/>
+      ${T.last >= 0 ? `<polyline class="ln-a" points="${pl(ca, T.last + 1)}"/>${ca.slice(0, T.last + 1).map((v, i) => `<circle class="dt-a" cx="${cx(i)}" cy="${yv(v)}" r="4"><title>${MON[i]}: ยอดจริงสะสม ${fmtN(v)} · เป้าสะสม ${fmtN(ct[i])}</title></circle>`).join('')}` : ''}
+      <circle class="dt-t" cx="${cx(11)}" cy="${yv(ct[11])}" r="4"><title>เป้าทั้งปี ${fmtN(ct[11])}</title></circle><circle class="dt-f" cx="${cx(11)}" cy="${yv(cf[11])}" r="4"><title>คาดการณ์ทั้งปี ${fmtN(cf[11])}</title></circle>
+      ${MON.slice(0, 12).map((m, i) => `<text x="${cx(i)}" y="${H - 6}" text-anchor="middle">${m}</text>`).join('')}`;
+  } else {
+    const mx = Math.max(1, ...T.tgt, ...T.act, ...T.won.map((v, i) => v + T.pipe[i]));
+    const yv = v => Tp + (H - Tp - B) * (1 - v / mx), x0 = i => Lp + i * bw + 6, w = bw - 12;
+    svg = `${[0, mx / 2, mx].map(v => `<line class="gl" x1="${Lp}" x2="${W - 4}" y1="${yv(v)}" y2="${yv(v)}"/><text x="${Lp - 6}" y="${yv(v) + 4}" text-anchor="end">${fmtM(v)}</text>`).join('')}
+      ${z12().map((_, i) => {
+        if (i <= T.last && T.act[i] > 0) { const ok = T.act[i] >= T.tgt[i]; return `<rect class="${ok ? 'b-ok' : 'b-low'}" x="${x0(i)}" y="${yv(T.act[i])}" width="${w}" height="${H - B - yv(T.act[i])}"><title>${MON[i]}: ยอดจริง ${fmtN(T.act[i])} · เป้า ${fmtN(T.tgt[i])} (${Math.round(T.act[i] / (T.tgt[i] || 1) * 100)}%)</title></rect>`; }
+        const wv = T.won[i], pv = T.pipe[i];
+        return `<rect class="b-won" x="${x0(i)}" y="${yv(wv)}" width="${w}" height="${H - B - yv(wv)}"><title>${MON[i]}: ได้งานแล้ว ${fmtN(wv)}</title></rect><rect class="b-pipe" x="${x0(i)}" y="${yv(wv + pv)}" width="${w}" height="${yv(wv) - yv(wv + pv)}"><title>${MON[i]}: Pipeline ถ่วงน้ำหนัก ${fmtN(pv)}</title></rect>`;
+      }).join('')}
+      <polyline class="ln-t" points="${T.tgt.map((v, i) => `${Lp + i * bw + 2},${yv(v)} ${Lp + (i + 1) * bw - 2},${yv(v)}`).join(' ')}"/>
+      ${MON.slice(0, 12).map((m, i) => `<text x="${cx(i)}" y="${H - 6}" text-anchor="middle">${m}</text>`).join('')}`;
+  }
+  const legend = mode === 'cum'
+    ? `<span><i class="dash"></i>เป้าสะสม</span><span><i style="background:var(--green)"></i>ยอดจริงสะสม</span><span><i class="dot"></i>คาดการณ์ (ยอดจริง + ได้งาน + Pipeline)</span>`
+    : `<span><i style="background:var(--green)"></i>ยอดจริง ≥ เป้า</span><span><i style="background:var(--red)"></i>ยอดจริง &lt; เป้า</span><span><i style="background:var(--navy)"></i>ได้งานแล้ว (ยังไม่มียอดจริง)</span><span><i style="background:var(--bar2)"></i>Pipeline ถ่วงน้ำหนัก</span><span><i class="dash"></i>เป้ารายเดือน</span>`;
+  const inp = (k, i, v) => `<input class="in num" id="a_${k}_${i}" name="a_${k}_${i}" inputmode="decimal" value="${v || ''}" placeholder="0" aria-label="${esc(BIZN[k])} ${MON[i]}" style="width:92px;min-height:32px;font-size:13px">`;
+  const A = T.A;
+  const table = `<form id="actf"><div class="tblwrap"><table class="acttbl"><thead><tr><th>ธุรกิจ</th>${MON.slice(0, 12).map(m => `<th class="num">${m}</th>`).join('')}<th class="num">รวม</th><th class="num">% เป้าปี</th></tr></thead><tbody>
+    ${BIZ.map(({ k, n }) => { const t = A[k].reduce((a, v) => a + v, 0); return `<tr><td style="min-width:150px">${esc(n)}</td>${A[k].map((v, i) => `<td class="num">${inp(k, i, v)}</td>`).join('')}<td class="num"><b>${fmtN(t)}</b></td><td class="num">${C.L[k].tRev ? Math.round(t / C.L[k].tRev * 100) + '%' : '-'}</td></tr>`; }).join('')}
+    <tr class="tot"><td>รวม</td>${z12().map((_, i) => `<td class="num">${fmtN(BIZ.reduce((a, b) => a + A[b.k][i], 0)) || '-'}</td>`).join('')}<td class="num">${fmtN(BIZ.reduce((a, b) => a + A[b.k].reduce((x, y) => x + y, 0), 0))}</td><td class="num">${C.tRev ? Math.round(BIZ.reduce((a, b) => a + A[b.k].reduce((x, y) => x + y, 0), 0) / C.tRev * 100) + '%' : '-'}</td></tr>
+    </tbody></table></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:10px"><span class="hint">ใส่ยอดรายได้ที่ออกใบแจ้งหนี้จริง (บาท) · ช่องว่าง = ยังไม่มียอด</span>
+    <span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="fillWon" title="เติมเฉพาะเดือนที่ผ่านไปแล้ว">เติมช่องว่างจากดีลที่ได้งาน</button><button class="btn pri">บันทึกยอดจริง</button></span></div></form>`;
+  setTimeout(() => { const f = $('#actf'); if (f) f.onsubmit = saveActual; }, 0);
+  return `<section class="panel" style="margin-bottom:14px"><div class="ph"><h2>เป้าเทียบยอดจริงรายเดือน ปี ${Y}</h2>
+      <span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select class="in" id="trline" data-trline="1" aria-label="เลือกธุรกิจ" style="width:auto;min-height:34px"><option value="all">ทุกธุรกิจ</option>${BIZ.map(b => `<option value="${b.k}" ${T.sel === b.k ? 'selected' : ''}>${esc(b.n)}</option>`).join('')}</select>
+      <span class="seg2" role="group" aria-label="มุมมอง"><button type="button" data-act="trackMode" data-v="month" aria-pressed="${mode === 'month'}">รายเดือน</button><button type="button" data-act="trackMode" data-v="cum" aria-pressed="${mode === 'cum'}">สะสม</button></span></span></div>
+    <div class="trk">
+      <div><span>ยอดจริงสะสม${T.last >= 0 ? ' ถึง ' + MON[T.last] : ''}</span><b>${fmtM(ytdA)}</b></div>
+      <div><span>เป้าสะสมช่วงเดียวกัน</span><b>${fmtM(ytdT)}</b></div>
+      <div class="${st[1] ? 'feas-' + st[1] : ''}"><span>ทำได้เทียบเป้า</span><b>${T.last >= 0 ? Math.round(pctY * 100) + '%' : '–'}</b><small>${st[0]}</small></div>
+      <div><span>คาดการณ์ทั้งปี / เป้าทั้งปี</span><b>${fmtM(yrF)} <small>/ ${fmtM(yrT)}</small></b><small>${yrT ? Math.round(yrF / yrT * 100) : 0}% ของเป้า</small></div>
+    </div>
+    <div style="overflow-x:auto"><svg class="spark trs" viewBox="0 0 ${W} ${H}" role="img" aria-label="เป้าเทียบยอดจริงรายเดือนปี ${Y}">${svg}</svg></div>
+    <div class="legend">${legend}</div>
+    <details class="actd" ${S.actOpen ? 'open' : ''}><summary>บันทึกยอดจริงรายเดือน</summary>${table}</details></section>`;
+}
+function saveActual(e) {
+  e.preventDefault(); const fd = new FormData(e.target), o = {};
+  BIZ.forEach(({ k }) => { o[k] = z12().map((_, i) => { const v = +String(fd.get(`a_${k}_${i}`) || '').replace(/,/g, ''); return isNaN(v) || v < 0 ? 0 : v; }); });
+  S.actOpen = true; saveConf('biz_actual', o, 'บันทึกยอดจริงแล้ว');
 }
 function bizLine(k) {
   const b = BIZ.find(x => x.k === k), cv = (S.biz && S.biz.canvas && S.biz.canvas[k]) || {}, C = bizCalc(), l = C.L[k], f = feas(l.tRev ? l.pipe / l.tRev : 0);
@@ -674,7 +770,7 @@ function bizSaveParams(e) {
 }
 async function saveConf(key, value, msg) {
   S.biz = S.biz || { canvas: {} };
-  if (key === 'biz_params') S.biz.params = value; else S.biz.canvas[key.replace('biz_canvas_', '')] = value;
+  if (key === 'biz_params') S.biz.params = value; else if (key === 'biz_actual') S.biz.actual = value; else S.biz.canvas[key.replace('biz_canvas_', '')] = value;
   render(); await enqueue('saveConf', { key, value }, msg);
 }
 function cvEdit(k, b) {
@@ -711,8 +807,7 @@ function vDash() {
   shell('dash', `
   <div class="topline"><div><h1>โอกาสประมูลสัญญา FM 2027–2031</h1><div class="sub">${A.length} ไซต์ · Healthcare ${hc.length} ไซต์ · ยืนยันข้อมูลแล้ว ${verified} ไซต์${own ? ' · ผู้ดูแล ' + esc(own) : ''}</div></div><button class="btn pri" data-act="newSite">+ เพิ่มลูกค้าใหม่</button>
     <div class="seg2" role="group" aria-label="ดูข้อมูลของ Sales" style="align-self:center"><button type="button" data-act="dashOwner" data-v="" aria-pressed="${!own}">ทั้งทีม</button>${owners.map(o => `<button type="button" data-act="dashOwner" data-v="${esc(o)}" aria-pressed="${own === o}">${esc(o)}</button>`).join('')}</div>
-    <div class="tools"><div class="who" aria-label="ผู้ใช้งานและเวลา"><b>${esc((S.user && S.user.name) || '')}</b><span class="clk" id="clock">${clockText()}</span><span id="lastsave">${S.savedAt ? 'บันทึกล่าสุด ' + S.savedAt : 'บันทึกอัตโนมัติทุกครั้งที่แก้ไข'}</span></div>
-      <div class="acts"><button class="btn pri" data-act="saveNow">Save data</button><button class="btn" data-act="exportDash">Export data (CSV)</button></div></div></div>
+    <div class="acts m-only"><button class="btn pri sm" data-act="saveNow">Save data</button><button class="btn sm" data-act="exportDash">Export CSV</button></div></div>
   ${own && !A.length ? `<div class="notice" style="margin-bottom:14px">${esc(own)} ยังไม่มีไซต์ที่ดูแล · กำหนดผู้ดูแลได้ที่ปุ่ม "แก้ไขข้อมูล" ในหน้ารายละเอียดลูกค้า</div>` : ''}
   <div class="kpis">
     <button class="kpi warm" data-act="goYear" data-v="2027"><b>${b27.length}</b><span>ไซต์ครบรอบประมูลปี 2027 · Healthcare ${b27h.length}</span></button>
@@ -985,6 +1080,15 @@ const ACT = {
   cvEdit: el => cvEdit(el.dataset.k, el.dataset.b),
   useAvg: el => { const i = $('#p_fm'); if (i) { i.value = el.dataset.v; i.focus(); } },
   bizReset: () => saveConf('biz_params', {}, 'คืนค่าตาม Business Model แล้ว'),
+  trackMode: el => { S.trackMode = el.dataset.v; vBiz(); },
+  fillWon: () => {
+    // เติมเฉพาะเดือนที่ผ่านไปแล้วของปี 2027 (ยอดจริงของเดือนในอนาคตยังไม่เกิด)
+    const t = ym(today()), done = t < Y + '-02' ? -1 : t > Y + '-12' ? 11 : +t.slice(5, 7) - 2;
+    if (done < 0) { toast('ยังไม่มีเดือนของปี ' + Y + ' ที่ผ่านไป · เติมได้ตั้งแต่ ก.พ. ' + Y); return; }
+    const C = bizCalc(); let n = 0;
+    BIZ.forEach(({ k }) => C.lm[k].won.forEach((v, i) => { const el = $('#a_' + k + '_' + i); if (i <= done && el && !el.value && v > 0) { el.value = Math.round(v); n++; } }));
+    toast(n ? 'เติม ' + n + ' ช่องจากดีลที่ได้งาน · ตรวจแล้วกดบันทึก' : 'ไม่มีช่องว่างที่ต้องเติม หรือยังไม่มีดีลที่ได้งาน');
+  },
   saveNow: el => saveNow(el),
   exportDash: () => { const own = S.dashOwner || ''; S.lastRows = allSites().filter(s => !own || s.owner === own).sort((a, b) => b.score - a.score); exportCSV(); },
   goYear: el => goList({ year: el.dataset.v }), goPrep: () => goList({ year: 'prep' }),
@@ -1013,6 +1117,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.fsel) { S.f[t.dataset.fsel] = t.value; renderResults(); }
   else if (t.dataset.fchk) { S.f[t.dataset.fchk] = t.checked; renderResults(); }
+  else if (t.dataset.trline) { S.trackLine = t.value; vBiz(); }
   else if (t.dataset.bsel) { S.bf[t.dataset.bsel] = t.value; vBoard(); }
   else if (t.dataset.bchk) { S.bf[t.dataset.bchk] = t.checked; vBoard(); }
   else if (t.dataset.stage) { const code = t.dataset.stage, s = site(code), v = t.value; saveSite(code, { stage: v }, 'ย้าย ' + s.name + ' ไป ' + STG[v]); addLog(code, 'เปลี่ยนสถานะ', (STG[s.stage] || '-') + ' → ' + STG[v]); }
