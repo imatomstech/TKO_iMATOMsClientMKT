@@ -229,6 +229,32 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .wrow{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:8px;align-items:center;font-size:13.5px;padding:4px 0}
 .wrow .in{min-height:34px;text-align:right}
+
+/* business model */
+.btabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.btabs button{all:unset;cursor:pointer;min-height:42px;padding:0 14px;color:var(--muted);font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.btabs button[aria-selected="true"]{color:var(--navy);font-weight:600;border-bottom-color:var(--navy)}
+.btabs button:focus-visible{outline:2px solid var(--navy)}
+.feas-gr{background:var(--green-l);border-color:var(--green)}.feas-gr b,.feas-gr span{color:var(--green)}
+.feas-am{background:var(--amber-l);border-color:var(--amber)}.feas-am b,.feas-am span{color:var(--amber)}
+.feas-rd{background:var(--red-l);border-color:var(--red)}.feas-rd b,.feas-rd span{color:var(--red)}
+.cov{display:inline-flex;align-items:center;gap:6px}.cov i{display:block;width:70px;height:7px;border-radius:4px;background:var(--sunk);overflow:hidden}.cov i u{display:block;height:100%}
+.cov u.gr{background:var(--green)}.cov u.am{background:var(--amber)}.cov u.rd{background:var(--red)}
+tr.tot td{font-weight:700;background:var(--sunk)}
+.spark .tl2{stroke:var(--amber);stroke-width:2;stroke-dasharray:6 4}
+.legend i.dash{background:none;border-top:2px dashed var(--amber);height:0;width:14px;vertical-align:3px}
+.probs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px}
+.h3{font-size:14px;margin:16px 0 8px}
+.linkbtn{all:unset;cursor:pointer;color:var(--navy);font-weight:600}.linkbtn:hover{text-decoration:underline}.linkbtn:focus-visible{outline:2px solid var(--navy)}
+.canvas{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}
+.cvb{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--sunk);min-width:0;display:flex;flex-direction:column;gap:6px}
+.cvh{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.cvh h3{margin:0;font-size:13px;color:var(--navy);line-height:1.3}.cvh h3 small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.cvt{white-space:pre-line;font-size:12.5px;line-height:1.55;overflow-wrap:anywhere}
+.cv-kp{grid-column:1/3;grid-row:1/3}.cv-ka{grid-column:3/5;grid-row:1}.cv-kr{grid-column:3/5;grid-row:2}.cv-vp{grid-column:5/7;grid-row:1/3;background:var(--navy-l)}
+.cv-cr{grid-column:7/9;grid-row:1}.cv-ch{grid-column:7/9;grid-row:2}.cv-cs{grid-column:9/11;grid-row:1/3}.cv-cost{grid-column:1/6;grid-row:3}.cv-rev{grid-column:6/11;grid-row:3;background:var(--green-l)}
+@media (max-width:1100px){.canvas{grid-template-columns:1fr 1fr}.canvas .cvb{grid-column:auto;grid-row:auto}}
+@media (max-width:600px){.canvas{grid-template-columns:1fr}}
 @media (max-width:1100px){.dgrid,.dlay{grid-template-columns:1fr}}
 @media (max-width:980px){
   .app{grid-template-columns:1fr}
@@ -250,7 +276,7 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 
 <script>
 /* ============ ตั้งค่า ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycby983ycrdtTFsfcSHgc05T-eSx1HtsOik5USYwuW3bMeUi5PC9KTAbVdFjUwY89QDQ/exec';   // ใส่ URL ของ Apps Script Web App (…/exec)
+const API_URL = '';   // ใส่ URL ของ Apps Script Web App (…/exec)
 /* ================================ */
 
 /* ข้อมูลอ้างอิง P&L AFM ปี 2021 โหลดจาก Google Sheet หลังเข้าสู่ระบบ (ไม่ฝังในไฟล์นี้)
@@ -294,6 +320,7 @@ const ICON = {
   dash: '<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
   list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
   board: '<path d="M3 4h18v16H3zM9 4v16M15 4v16"/>',
+  biz: '<path d="M3 3v18h18M7 15l4-4 3 3 6-6"/><path d="M20 8V4h-4"/>',
   bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
 };
@@ -317,12 +344,12 @@ function derive(r) {
     sourcing: z === 'active' || z === 'starting' ? 'Outsource' : 'ไม่ทราบ',
     vendor: z === 'active' || z === 'starting' ? 'AFM (Atalian) · ข้อมูลปี 2021' : z === 'ended' ? 'ไม่ทราบ (เลิกใช้ AFM ปี 2021)' : '',
     scope, start, startEst: true, term: null, expiry: '', value: r.rv > 0 ? r.rv : null,
-    stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: ''
+    stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: '', lines: ['fm']
   };
 }
 function site(code) {
   const r = REFIX[code], o = S.over[code] || {};
-  const base = r ? derive(r) : { code, ref: null, sourcing: 'ไม่ทราบ', vendor: '', scope: 'ไม่ทราบ', start: null, startEst: false, term: null, expiry: '', value: null, stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: '' };
+  const base = r ? derive(r) : { code, ref: null, sourcing: 'ไม่ทราบ', vendor: '', scope: 'ไม่ทราบ', start: null, startEst: false, term: null, expiry: '', value: null, stage: 'target', owner: '', contacts: [], notes: '', verified: false, province: '', lines: ['fm'] };
   const s = Object.assign({}, base, o, { code, ref: r || null });
   if (o.start !== undefined && o.start !== base.start) s.startEst = false;
   s.termY = +s.term || +S.cfg.term || 3;
@@ -394,6 +421,7 @@ async function api(action, payload) {
 function applyData(d) {
   if (d.ref) { REF = d.ref; REFIX = Object.fromEntries(REF.map(r => [r.c, r])); }
   const o = {}; (d.sites || []).forEach(s => { if (s.code) o[s.code] = s; }); S.over = o;
+  if (d.biz) S.biz = d.biz;
   S.logs = d.logs || []; S.actions = d.actions || []; S.users = d.users || [];
   S.cfg = Object.assign(JSON.parse(JSON.stringify(CFG0)), d.config || {});
   if ((S.cfg.owners || []).join() === 'MKT-1,MKT-2,MKT-3') S.cfg.owners = CFG0.owners.slice();
@@ -479,7 +507,7 @@ async function boot() {
 }
 
 /* ===== shell ===== */
-const NAV = [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell'], ['settings', 'ตั้งค่า', 'gear']];
+const NAV = [['dash', 'ภาพรวม', 'dash'], ['list', 'ฐานลูกค้า', 'list'], ['board', 'ClientSite', 'board'], ['follow', 'Follow-up', 'bell'], ['biz', 'Business Model', 'biz'], ['settings', 'ตั้งค่า', 'gear']];
 function shell(page, html) {
   const od = S.actions.filter(a => a.status === 'open' && a.due < today()).length;
   const nav = NAV.map(([k, l, i]) => `<a href="#${k}" ${page === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'follow' && od ? `<span class="badge" aria-label="เลยกำหนด ${od} รายการ">${od}</span>` : ''}</a>`).join('');
@@ -500,6 +528,159 @@ async function saveNow(btn) {
     const d = new Date(); S.savedAt = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' น.';
     render(); toast('ข้อมูลทั้งหมดบันทึกใน Google Sheet แล้ว · ' + S.savedAt);
   } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Save data'; } }
+}
+
+/* ===== Business Model 2026–2027 ===== */
+const BIZ = [
+  { k: 'app', n: 'iMATOMs App (CMMS)', sh: 'App' }, { k: 'fm', n: 'FM & Asset', sh: 'FM' }, { k: 'iot', n: 'IoT / BAS', sh: 'IoT' },
+  { k: 'mv', n: 'M&V ประหยัดพลังงาน', sh: 'M&V' }, { k: 'adv', n: 'Advisory', sh: 'ADV' }, { k: 'bis', n: 'Building Inspection', sh: 'BIS' }];
+const BIZN = Object.fromEntries(BIZ.map(b => [b.k, b.n]));
+const BILL_TH = { monthly: 'รายเดือน', annual: 'รายปี', project: 'ต่อโครงการ' };
+// ช่วงราคา กำไร และจำนวนโครงการต่อปี ตาม Revenue Streams ในไฟล์ Business Model
+const BIZ_P0 = {
+  app: { bill: 'annual', pMin: 60000, pMax: 84000, unit: 'บาท/ปี/โครงการ', mMin: 45, mMax: 55, tMin: 10, tMax: 20, recog: 6, note: '5,000–7,000 บาท/ปี/User · สัญญาอย่างน้อย 24 เดือน' },
+  fm: { bill: 'monthly', pMin: 150000, pMax: 1000000, unit: 'บาท/เดือน/โครงการ', mMin: 15, mMax: 25, tMin: 10, tMax: 12, recog: 6, note: '29,000–32,000 บาท/Head · สัญญาอย่างน้อย 24 เดือน' },
+  iot: { bill: 'project', pMin: 250000, pMax: 500000, unit: 'บาท/โครงการ', mMin: 35, mMax: 45, tMin: 10, tMax: 12, note: 'บวกส่วนแบ่งผลประหยัด 65:35 (TKO:ลูกค้า) · สัญญาอย่างน้อย 36 เดือน' },
+  mv: { bill: 'project', pMin: 50000, pMax: 100000, unit: 'บาท/โครงการ', mMin: 35, mMax: 40, tMin: 10, tMax: 12, note: 'ราคาขึ้นกับค่าพลังงานที่ลดลง · สัญญาอย่างน้อย 2 ปี' },
+  adv: { bill: 'project', pMin: 150000, pMax: 200000, unit: 'บาท/โครงการ', mMin: 35, mMax: 45, tMin: 10, tMax: 12, note: 'สัญญาอย่างน้อย 2 ปี จ่ายรายเดือน' },
+  bis: { bill: 'project', pMin: 28000, pMax: 45000, unit: 'บาท/รายงาน', mMin: 70, mMax: 85, tMin: 10, tMax: 12, note: 'งานตรวจสอบอาคารตามกฎหมาย (ร.1) สัญญาปีต่อปี' }
+};
+const PROB0 = { target: 5, contacted: 10, survey: 25, proposal: 40, bidding: 50, negotiation: 75, won: 100, lost: 0 };
+const CANVAS = [['kp', '(8) Key Partners', 'พันธมิตรหลัก'], ['ka', '(7) Key Activities', 'กิจกรรมหลัก'], ['kr', '(6) Key Resources', 'ทรัพยากรหลัก'], ['vp', '(2) Value Propositions', 'คุณค่าที่ส่งมอบ'], ['cr', '(4) Customer Relationships', 'ความสัมพันธ์กับลูกค้า'], ['ch', '(3) Channels', 'ช่องทาง'], ['cs', '(1) Customer Segments', 'กลุ่มลูกค้า'], ['cost', '(9) Cost Structure', 'โครงสร้างต้นทุน'], ['rev', '(5) Revenue Streams', 'กระแสรายได้']];
+const Y = '2027';
+
+function bizParams() {
+  const sv = (S.biz && S.biz.params) || {}, out = { lines: {}, prob: Object.assign({}, PROB0, sv.prob || {}) };
+  BIZ.forEach(({ k }) => {
+    const d = BIZ_P0[k], s = (sv.lines || {})[k] || {};
+    out.lines[k] = Object.assign({}, d, {
+      target: s.target ?? Math.round((d.tMin + d.tMax) / 2), price: s.price ?? Math.round((d.pMin + d.pMax) / 2),
+      margin: s.margin ?? (d.mMin + d.mMax) / 2, recog: s.recog ?? d.recog
+    });
+  });
+  return out;
+}
+const factor = p => p.bill === 'monthly' ? (+p.recog || 0) : p.bill === 'annual' ? (+p.recog || 0) / 12 : 1;
+const linesOf = s => (s.lines && s.lines.length) ? s.lines : ['fm'];
+/** รายได้ปี 2027 ที่คาดจากไซต์หนึ่ง (ถ่วงน้ำหนักตามโอกาสของสถานะดีล) */
+function sitePipe(s, P) {
+  const pr = (P.prob[s.stage] ?? 0) / 100, out = { p: pr, lines: {}, total: 0, months: 0, start: null };
+  if (!pr) return out;
+  linesOf(s).forEach(k => {
+    const lp = P.lines[k]; if (!lp) return;
+    let rev = 0;
+    if (k === 'fm') {
+      let start = null;
+      if (s.next) start = s.next.exp < Y + '-01' ? Y + '-01' : s.next.exp;
+      else if (s.stage === 'won') start = Y + '-01';
+      else if (s.stage !== 'target') start = Y + '-07';
+      if (start && start <= Y + '-12') {
+        const m = 13 - +start.slice(5, 7); out.months = m; out.start = start;
+        rev = (+s.value || lp.price) * m * pr;
+      }
+    } else rev = lp.price * factor(lp) * pr;
+    if (rev) { out.lines[k] = rev; out.total += rev; }
+  });
+  return out;
+}
+function bizCalc() {
+  const P = bizParams(), A = allSites().filter(s => s.stage !== 'lost');
+  const L = {}; BIZ.forEach(({ k }) => {
+    const p = P.lines[k], f = factor(p);
+    L[k] = { p, f, tRev: p.target * p.price * f, tGM: p.target * p.price * f * p.margin / 100,
+      low: p.tMin * p.pMin * f, high: p.tMax * p.pMax * f, pipe: 0, wN: 0, n: 0 };
+  });
+  const rows = A.map(s => ({ s, x: sitePipe(s, P) }));
+  rows.forEach(({ s, x }) => linesOf(s).forEach(k => { if (!L[k]) return; L[k].n++; if (x.lines[k]) { L[k].pipe += x.lines[k]; L[k].wN += x.p; } }));
+  const tRev = BIZ.reduce((a, b) => a + L[b.k].tRev, 0), tGM = BIZ.reduce((a, b) => a + L[b.k].tGM, 0);
+  const pipe = BIZ.reduce((a, b) => a + L[b.k].pipe, 0), pipeGM = BIZ.reduce((a, b) => a + L[b.k].pipe * L[b.k].p.margin / 100, 0);
+  // รายเดือน: FM รับรู้ตั้งแต่เดือนเริ่มสัญญา · ธุรกิจอื่นกระจายเท่ากัน 12 เดือน
+  const mon = Array(12).fill(0);
+  rows.forEach(({ s, x }) => {
+    if (x.lines.fm && x.start) { const m0 = +x.start.slice(5, 7) - 1, per = x.lines.fm / x.months; for (let i = m0; i < 12; i++) mon[i] += per; }
+    Object.entries(x.lines).forEach(([k, v]) => { if (k !== 'fm') for (let i = 0; i < 12; i++) mon[i] += v / 12; });
+  });
+  return { P, L, rows, tRev, tGM, pipe, pipeGM, mon, cov: tRev ? pipe / tRev : 0 };
+}
+const feas = c => c >= 1 ? ['สูง', 'gr', 'Pipeline ถ่วงน้ำหนักครอบคลุมเป้าแล้ว'] : c >= .6 ? ['ปานกลาง', 'am', 'ต้องเร่งขยับสถานะดีลหรือหาลูกค้าเพิ่ม'] : ['ต่ำ', 'rd', 'Pipeline ยังห่างจากเป้ามาก ควรเพิ่มไซต์เป้าหมายหรือปรับเป้า'];
+
+function vBiz() {
+  const tab = S.bizTab || 'sum';
+  const tabs = `<nav class="btabs" role="tablist" aria-label="ธุรกิจ"><button role="tab" data-act="bizTab" data-v="sum" aria-selected="${tab === 'sum'}">ภาพรวม ${Y}</button>${BIZ.map(b => `<button role="tab" data-act="bizTab" data-v="${b.k}" aria-selected="${tab === b.k}">${esc(b.n)}</button>`).join('')}</nav>`;
+  const body = tab === 'sum' ? bizSummary() : bizLine(tab);
+  shell('biz', `<div class="topline"><div><h1>Business Model ${Y}</h1><div class="sub">TKO Group · iMATOMs 6 ธุรกิจ · ประเมินรายได้จากเป้าใน Business Model เทียบกับ Pipeline ในฐานลูกค้า</div></div></div>${tabs}${body}`);
+}
+function bizSummary() {
+  const C = bizCalc(), F = feas(C.cov), gap = Math.max(0, C.tRev - C.pipe);
+  const fmAvg = (() => { const v = allSites().map(s => +s.value || 0).filter(Boolean); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; })();
+  const avgGain = (C.P.prob.proposal - C.P.prob.target) / 100 * (fmAvg || C.P.lines.fm.price) * 9;
+  const mx = Math.max(1, ...C.mon, C.tRev / 12);
+  const W = 640, H = 190, Lp = 50, B = 22, T = 10, bw = (W - Lp - 6) / 12, yv = v => T + (H - T - B) * (1 - v / mx);
+  const chart = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="รายได้รายเดือนปี ${Y} จาก Pipeline เทียบเป้า">
+    ${[0, mx / 2, mx].map(v => `<line class="gl" x1="${Lp}" x2="${W - 4}" y1="${yv(v)}" y2="${yv(v)}"/><text x="${Lp - 6}" y="${yv(v) + 4}" text-anchor="end">${fmtM(v)}</text>`).join('')}
+    ${C.mon.map((v, i) => `<rect class="rb" x="${Lp + i * bw + 4}" y="${yv(v)}" width="${bw - 8}" height="${Math.max(0, H - B - yv(v))}"><title>${MON[i]} ${Y}: ${fmtN(v)} บาท</title></rect><text x="${Lp + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${MON[i]}</text>`).join('')}
+    <line x1="${Lp}" x2="${W - 4}" y1="${yv(C.tRev / 12)}" y2="${yv(C.tRev / 12)}" class="tl2"/></svg>
+    <div class="legend"><span><i style="background:var(--navy)"></i>Pipeline ถ่วงน้ำหนัก</span><span><i class="dash"></i>เป้าเฉลี่ยต่อเดือน ${fmtM(C.tRev / 12)}</span></div>`;
+  const rowsT = BIZ.map(({ k, n }) => { const l = C.L[k], cv = l.tRev ? l.pipe / l.tRev : 0, f = feas(cv); return `<tr><td style="min-width:170px"><button class="linkbtn" data-act="bizTab" data-v="${k}">${esc(n)}</button><div class="hint">${esc(l.p.unit)}</div></td>
+    <td class="num">${l.p.target}</td><td class="num">${fmtN(l.p.price)}</td><td class="num"><b>${fmtN(l.tRev)}</b><div class="hint">${fmtM(l.low)}–${fmtM(l.high)}</div></td><td class="num">${fmtN(l.tGM)}<div class="hint">${l.p.margin}%</div></td>
+    <td class="num">${l.n}<div class="hint">ถ่วง ${l.wN.toFixed(1)}</div></td><td class="num">${fmtN(l.pipe)}</td><td><span class="cov"><i><u class="${f[1]}" style="width:${Math.min(100, cv * 100)}%"></u></i><b>${Math.round(cv * 100)}%</b></span></td></tr>`; }).join('');
+  const owners = [...(S.cfg.owners || []), ''];
+  const own = owners.map(o => { const r = C.rows.filter(x => (x.s.owner || '') === o); return { o, n: r.filter(x => x.x.total).length, v: r.reduce((a, x) => a + x.x.total, 0) }; });
+  const omx = Math.max(1, ...own.map(x => x.v));
+  const ownH = own.map(x => `<div class="brow" style="cursor:default"><span>${esc(x.o || 'ยังไม่มีผู้ดูแล')} <span class="hint">${x.n}</span></span><span class="tr"><i style="width:${x.v / omx * 100}%"></i></span><em>${fmtM(x.v)}</em></div>`).join('');
+  const top = C.rows.filter(x => x.x.total).sort((a, b) => b.x.total - a.x.total).slice(0, 10);
+  const topH = top.map(({ s, x }) => `<a class="hot" href="#site-${esc(s.code)}"><span class="nm">${esc(s.name)}</span><span class="sc">${fmtM(x.total)}<small>ถ่วงน้ำหนัก</small></span><span class="tags">${stTag(s.stage)}<span class="tag">โอกาส ${Math.round(x.p * 100)}%</span>${x.start ? `<span class="tag am">เริ่ม ${fmtYM(x.start)}</span>` : ''}${linesOf(s).map(k => `<span class="tag nv">${esc(BIZ.find(b => b.k === k).sh)}</span>`).join('')}</span></a>`).join('') || '<div class="hint">ยังไม่มีไซต์ที่มีโอกาสในปี ' + Y + '</div>';
+  const P = C.P;
+  const inp = (id, v, w = 90) => `<input class="in num" id="${id}" name="${id}" inputmode="decimal" value="${v}" style="width:${w}px;min-height:34px">`;
+  const form = `<form id="bizf"><div class="tblwrap"><table><thead><tr><th>ธุรกิจ</th><th class="num">โครงการ ${Y}</th><th class="num">ราคาเฉลี่ย</th><th class="num">กำไร %</th><th class="num">เดือนที่รับรู้รายได้</th><th>ช่วงอ้างอิงจาก Business Model</th></tr></thead><tbody>
+    ${BIZ.map(({ k, n }) => { const p = P.lines[k]; return `<tr><td style="min-width:140px">${esc(n)}</td><td class="num">${inp('t_' + k, p.target, 70)}</td><td class="num">${inp('p_' + k, p.price, 110)}</td><td class="num">${inp('m_' + k, p.margin, 64)}</td><td class="num">${p.bill === 'project' ? '<span class="hint">รับรู้ครั้งเดียว</span>' : inp('r_' + k, p.recog, 56)}</td><td class="hint" style="min-width:230px">${fmtN(p.pMin)}–${fmtN(p.pMax)} ${esc(p.unit)} · กำไร ${p.mMin}–${p.mMax}% · ${p.tMin}–${p.tMax} โครงการ/ปี${k === 'fm' && fmAvg ? ` · <button type="button" class="linkbtn" data-act="useAvg" data-v="${Math.round(fmAvg)}">ใช้ค่าเฉลี่ยฐานลูกค้า ${fmtN(fmAvg)}</button>` : ''}</td></tr>`; }).join('')}
+    </tbody></table></div>
+    <h3 class="h3">โอกาสได้งานตามสถานะดีล (%)</h3><div class="probs">${STAGES.map(([s, l]) => `<label class="f" for="pr_${s}">${esc(l)}${inp('pr_' + s, P.prob[s], 70)}</label>`).join('')}</div>
+    <p class="hint">เดือนที่รับรู้รายได้: FM คือจำนวนเดือนเฉลี่ยในปี ${Y} ที่โครงการใหม่สร้างรายได้ (เริ่มกลางปี ≈ 6) · App คิดค่าบริการรายปี จึงรับรู้ตามสัดส่วนเดือน</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button type="button" class="btn" data-act="bizReset">คืนค่าตาม Business Model</button><button class="btn pri">บันทึกเป้า ${Y}</button></div></form>`;
+  setTimeout(() => { const f = $('#bizf'); if (f) f.onsubmit = bizSaveParams; }, 0);
+  return `<div class="kpis">
+    <div class="kpi" style="cursor:default"><b>${fmtM(C.tRev)}</b><span>เป้ารายได้ปี ${Y} รวม 6 ธุรกิจ</span></div>
+    <div class="kpi" style="cursor:default"><b>${fmtM(C.tGM)}</b><span>เป้ากำไรขั้นต้น (${C.tRev ? Math.round(C.tGM / C.tRev * 100) : 0}%)</span></div>
+    <div class="kpi" style="cursor:default"><b>${fmtM(C.pipe)}</b><span>Pipeline ถ่วงน้ำหนักจากฐานลูกค้า · กำไร ${fmtM(C.pipeGM)}</span></div>
+    <div class="kpi feas-${F[1]}" style="cursor:default"><b>${Math.round(C.cov * 100)}%</b><span>ความเป็นไปได้ <b style="font-size:inherit">${F[0]}</b> · ${F[2]}</span></div></div>
+  <div class="col" style="margin-bottom:14px"><section class="panel"><div class="ph"><h2>เป้าเทียบ Pipeline รายธุรกิจ ปี ${Y}</h2><span class="hint">บาท/ปี · ตัวเลขเล็กใต้รายได้ = ช่วงต่ำสุด–สูงสุดตาม Business Model</span></div>
+      <div class="tblwrap"><table><thead><tr><th>ธุรกิจ</th><th class="num">โครงการ</th><th class="num">ราคาเฉลี่ย</th><th class="num">เป้ารายได้</th><th class="num">เป้ากำไร</th><th class="num">ไซต์ในฐาน</th><th class="num">Pipeline</th><th>ครอบคลุมเป้า</th></tr></thead><tbody>${rowsT}
+      <tr class="tot"><td>รวม</td><td class="num">${BIZ.reduce((a, b) => a + C.L[b.k].p.target, 0)}</td><td></td><td class="num">${fmtN(C.tRev)}</td><td class="num">${fmtN(C.tGM)}</td><td></td><td class="num">${fmtN(C.pipe)}</td><td><b>${Math.round(C.cov * 100)}%</b></td></tr></tbody></table></div>
+      ${gap ? `<p class="hint" style="margin:10px 0 0">ยังขาด <b style="color:var(--ink)">${fmtN(gap)}</b> บาท · ทุกไซต์ FM ที่ขยับจาก "ตั้งเป้า" เป็น "เสนอราคา" เพิ่ม Pipeline ราว ${fmtM(avgGain)} (คิดจากมูลค่าเฉลี่ยต่อไซต์ 9 เดือน)</p>` : ''}</section></div>
+  <div class="dgrid" style="margin-bottom:14px"><div class="col"><section class="panel"><div class="ph"><h2>รายได้รายเดือนปี ${Y} จาก Pipeline</h2><span class="hint">FM เริ่มนับจากเดือนที่สัญญาเดิมหมด</span></div><div style="overflow-x:auto">${chart}</div></section><section class="panel"><div class="ph"><h2>Pipeline ตาม Sales</h2><span class="hint">บาท ปี ${Y}</span></div>${ownH}</section></div><div class="col"><section class="panel"><div class="ph"><h2>ไซต์ที่สร้างรายได้มากที่สุด</h2><span class="hint">ถ่วงน้ำหนักตามโอกาส</span></div>${topH}</section></div></div>
+  <div class="col"><section class="panel"><div class="ph"><h2>ตั้งเป้าปี ${Y}</h2><span class="hint">แก้ตัวเลขแล้วกดบันทึก ระบบคำนวณใหม่ทั้งหน้า</span></div>${form}</section><section class="panel hint" style="line-height:1.6"><b style="color:var(--ink)">วิธีคำนวณ</b><br>เป้า = โครงการ × ราคาเฉลี่ย × เดือนที่รับรู้รายได้<br>Pipeline = มูลค่าไซต์ × จำนวนเดือนในปี ${Y} × โอกาสตามสถานะดีล · บริการอื่นที่ติ๊กไว้ในหน้าลูกค้าคิดราคาเฉลี่ยของธุรกิจนั้น<br>ติ๊ก "บริการที่เสนอ" ได้ในหน้ารายละเอียดลูกค้า › แก้ไขข้อมูล</section></div>`;
+}
+function bizLine(k) {
+  const b = BIZ.find(x => x.k === k), cv = (S.biz && S.biz.canvas && S.biz.canvas[k]) || {}, C = bizCalc(), l = C.L[k], f = feas(l.tRev ? l.pipe / l.tRev : 0);
+  const blocks = CANVAS.map(([key, en, th]) => `<section class="cvb cv-${key}"><div class="cvh"><h3>${en}<small>${th}</small></h3><button class="btn ghost sm" data-act="cvEdit" data-k="${k}" data-b="${key}" aria-label="แก้ไข ${en}">แก้ไข</button></div><div class="cvt">${esc(cv[key] || '') || '<span class="hint">ยังไม่มีข้อมูล</span>'}</div></section>`).join('');
+  const sites = C.rows.filter(x => linesOf(x.s).includes(k)).sort((a, z) => (z.x.lines[k] || 0) - (a.x.lines[k] || 0));
+  return `<div class="kpis">
+    <div class="kpi" style="cursor:default"><b>${fmtM(l.tRev)}</b><span>เป้ารายได้ ${Y} · ${l.p.target} โครงการ</span></div>
+    <div class="kpi" style="cursor:default"><b>${fmtM(l.tGM)}</b><span>เป้ากำไรขั้นต้น ${l.p.margin}%</span></div>
+    <div class="kpi" style="cursor:default"><b>${fmtM(l.pipe)}</b><span>Pipeline ถ่วงน้ำหนัก · ${sites.length} ไซต์</span></div>
+    <div class="kpi feas-${f[1]}" style="cursor:default"><b>${l.tRev ? Math.round(l.pipe / l.tRev * 100) : 0}%</b><span>ความเป็นไปได้ ${f[0]}</span></div></div>
+  <section class="panel" style="margin-bottom:14px"><div class="ph"><h2>${esc((cv.title || b.n))} · Business Model Canvas</h2><span class="hint">กด "แก้ไข" ในแต่ละช่องเพื่อปรับข้อความ</span></div><div class="canvas">${blocks}</div></section>
+  <div class="dgrid"><section class="panel"><div class="ph"><h2>ไซต์ที่เสนอบริการนี้</h2><span class="hint">${k === 'fm' ? 'ไซต์ในฐานลูกค้าเริ่มต้นเป็น FM & Asset' : 'ติ๊ก "บริการที่เสนอ" ในหน้ารายละเอียดลูกค้า'}</span></div>
+    ${sites.length ? `<div class="tblwrap"><table><thead><tr><th>ไซต์</th><th>สถานะ</th><th class="num">โอกาส</th><th class="num">Pipeline ${Y}</th></tr></thead><tbody>${sites.slice(0, 60).map(({ s, x }) => `<tr class="click" data-href="#site-${esc(s.code)}"><td><a href="#site-${esc(s.code)}">${esc(s.name)}</a><div class="hint">${esc(s.owner || 'ยังไม่มีผู้ดูแล')}</div></td><td>${stTag(s.stage)}</td><td class="num">${Math.round(x.p * 100)}%</td><td class="num">${fmtN(x.lines[k] || 0)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="hint">ยังไม่มีไซต์ที่เสนอบริการนี้</div>'}</section>
+    <section class="panel"><h2>กระแสรายได้</h2><dl class="kv"><div><dt>รูปแบบ</dt><dd>${BILL_TH[l.p.bill]}</dd></div><div><dt>ราคาอ้างอิง</dt><dd>${fmtN(l.p.pMin)}–${fmtN(l.p.pMax)} ${esc(l.p.unit)}</dd></div><div><dt>กำไรขั้นต้น</dt><dd>${l.p.mMin}–${l.p.mMax}%</dd></div><div><dt>เป้าโครงการต่อปี</dt><dd>${l.p.tMin}–${l.p.tMax}</dd></div><div><dt>ช่วงรายได้ต่อปี</dt><dd>${fmtN(l.low)}–${fmtN(l.high)}</dd></div><div><dt>หมายเหตุ</dt><dd>${esc(l.p.note)}</dd></div></dl>
+    <button class="btn" data-act="bizTab" data-v="sum" style="margin-top:14px">ปรับเป้าในหน้าภาพรวม ${Y}</button></section></div>`;
+}
+function bizSaveParams(e) {
+  e.preventDefault(); const fd = new FormData(e.target), P = bizParams(), n = (id, d, mn = 0) => { const v = +String(fd.get(id) ?? '').replace(/,/g, ''); return isNaN(v) || fd.get(id) === '' || fd.get(id) == null ? d : Math.max(mn, v); };
+  const lines = {}; BIZ.forEach(({ k }) => { const p = P.lines[k]; lines[k] = { target: n('t_' + k, p.target), price: n('p_' + k, p.price), margin: Math.min(100, n('m_' + k, p.margin)) }; if (p.bill !== 'project') lines[k].recog = Math.min(12, n('r_' + k, p.recog)); });
+  const prob = {}; STAGES.forEach(([s]) => prob[s] = Math.min(100, n('pr_' + s, P.prob[s])));
+  saveConf('biz_params', { lines, prob }, 'บันทึกเป้าปี ' + Y + ' แล้ว');
+}
+async function saveConf(key, value, msg) {
+  S.biz = S.biz || { canvas: {} };
+  if (key === 'biz_params') S.biz.params = value; else S.biz.canvas[key.replace('biz_canvas_', '')] = value;
+  render(); await enqueue('saveConf', { key, value }, msg);
+}
+function cvEdit(k, b) {
+  const cv = Object.assign({}, (S.biz && S.biz.canvas && S.biz.canvas[k]) || {}), meta = CANVAS.find(x => x[0] === b);
+  openDlg(`<h2>${esc(BIZN[k])} · ${meta[1]}</h2><label class="f" for="cv_t">${meta[2]}<textarea class="in" id="cv_t" name="t" rows="16" style="min-height:320px">${esc(cv[b] || '')}</textarea></label>`,
+    async fd => { cv[b] = String(fd.get('t') || '').trim(); await saveConf('biz_canvas_' + k, cv, 'บันทึก ' + meta[1] + ' แล้ว'); });
 }
 
 /* ===== dashboard ===== */
@@ -598,7 +779,7 @@ function renderResults() {
 }
 async function exportCSV() {
   const rows = S.lastRows || [];
-  const cols = [['รหัส', s => s.code], ['ชื่อ', s => s.name], ['กลุ่ม', s => s.seg], ['การจ้าง', s => s.sourcing], ['ยืนยันแล้ว', s => s.verified ? 'Yes' : 'No'], ['ผู้ให้บริการปัจจุบัน', s => s.vendor], ['ขอบเขตงาน', s => s.scope], ['THB/เดือน', s => s.value ?? ''], ['GM% 2021', s => s.ref && s.ref.y ? pct(s.ref.yg, s.ref.y) : ''], ['พนักงาน 2021', s => s.ref ? s.ref.st ?? '' : ''], ['เริ่มสัญญา', s => s.start || ''], ['อายุสัญญา (ปี)', s => s.termY], ['ประมูลรอบถัดไป', s => s.next ? s.next.exp : ''], ['รอบในปี 2027–2031', s => s.bids.filter(b => b.exp >= '2027').map(b => b.exp).join(' / ')], ['สถานะดีล', s => STG[s.stage] || ''], ['ผู้ดูแล', s => s.owner], ['คะแนน', s => s.score], ['หมายเหตุ', s => s.notes]];
+  const cols = [['รหัส', s => s.code], ['ชื่อ', s => s.name], ['กลุ่ม', s => s.seg], ['การจ้าง', s => s.sourcing], ['ยืนยันแล้ว', s => s.verified ? 'Yes' : 'No'], ['ผู้ให้บริการปัจจุบัน', s => s.vendor], ['ขอบเขตงาน', s => s.scope], ['THB/เดือน', s => s.value ?? ''], ['GM% 2021', s => s.ref && s.ref.y ? pct(s.ref.yg, s.ref.y) : ''], ['พนักงาน 2021', s => s.ref ? s.ref.st ?? '' : ''], ['เริ่มสัญญา', s => s.start || ''], ['อายุสัญญา (ปี)', s => s.termY], ['ประมูลรอบถัดไป', s => s.next ? s.next.exp : ''], ['รอบในปี 2027–2031', s => s.bids.filter(b => b.exp >= '2027').map(b => b.exp).join(' / ')], ['บริการที่เสนอ', s => linesOf(s).map(k => BIZN[k]).join(' / ')], ['สถานะดีล', s => STG[s.stage] || ''], ['ผู้ดูแล', s => s.owner], ['คะแนน', s => s.score], ['หมายเหตุ', s => s.notes]];
   const q = v => { const x = v == null ? '' : String(v); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
   const csv = '﻿' + [cols.map(c => q(c[0])).join(','), ...rows.map(s => cols.map(c => q(c[1](s))).join(','))].join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'TKO_iMATOMs_clients_' + today() + '.csv'; document.body.appendChild(a); a.click(); a.remove();
@@ -645,7 +826,7 @@ function vSite(code) {
     <div class="score"><b>${s.score}</b><span>คะแนนโอกาส</span></div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"><button class="btn pri" data-act="editSite" data-id="${esc(code)}">แก้ไขข้อมูล</button><button class="btn" data-act="logDlg" data-id="${esc(code)}">บันทึกกิจกรรม</button><button class="btn" data-act="fuDlg" data-id="${esc(code)}">ตั้ง Follow-up</button><button class="btn" data-act="ctcDlg" data-id="${esc(code)}">เพิ่มผู้ติดต่อ</button></div>
   <div class="dlay"><div class="col">
-    <section class="panel"><h2>รูปแบบการจ้างและขอบเขตงาน</h2>${kv([['การจ้าง', s.sourcing], ['ผู้ให้บริการปัจจุบัน', s.vendor], ['ขอบเขตงาน', s.scope], ['มูลค่าสัญญา (THB/เดือน)', s.value ? fmtN(s.value) : ''], ['จังหวัด / ที่ตั้ง', s.province], ['ปรับปรุงล่าสุด', S.over[code] && S.over[code].updatedAt ? fmtD(S.over[code].updatedAt) + (S.over[code].updatedBy ? ' · ' + nameOf(S.over[code].updatedBy) : '') : '']])}${s.notes ? `<p style="margin:12px 0 0;white-space:pre-line"><span class="hint">หมายเหตุ</span><br>${esc(s.notes)}</p>` : ''}</section>
+    <section class="panel"><h2>รูปแบบการจ้างและขอบเขตงาน</h2>${kv([['การจ้าง', s.sourcing], ['ผู้ให้บริการปัจจุบัน', s.vendor], ['ขอบเขตงาน', s.scope], ['มูลค่าสัญญา (THB/เดือน)', s.value ? fmtN(s.value) : ''], ['จังหวัด / ที่ตั้ง', s.province], ['บริการที่เสนอ', linesOf(s).map(k => `<span class="tag nv">${esc(BIZN[k])}</span>`).join(' '), 1], ['ปรับปรุงล่าสุด', S.over[code] && S.over[code].updatedAt ? fmtD(S.over[code].updatedAt) + (S.over[code].updatedBy ? ' · ' + nameOf(S.over[code].updatedBy) : '') : '']])}${s.notes ? `<p style="margin:12px 0 0;white-space:pre-line"><span class="hint">หมายเหตุ</span><br>${esc(s.notes)}</p>` : ''}</section>
     <section class="panel"><div class="ph"><h2>รอบสัญญาและการประมูล</h2><span class="hint">อายุสัญญา ${s.termY} ปี · เริ่ม ${s.start ? fmtYM(s.start) : '-'}${s.start && s.startEst ? ' (คาดการณ์)' : ''}${s.expiry ? ' · หมดสัญญาจริง ' + fmtD(s.expiry) : ''}</span></div><div class="timeline">${tl}</div></section>
     ${r ? `<section class="panel"><div class="ph"><h2>ข้อมูลอ้างอิง AFM ปี 2021</h2><span class="hint">${esc(Z_TH[r.z])}</span></div>
       ${kv([['รายได้ ม.ค.–ก.ย.', fmtN(r.y) + ' THB'], ['กำไรขั้นต้น YTD', r.y ? fmtN(r.yg) + ' THB (' + gmp + '%)' : ''], ['รายได้/เดือน (อัตราล่าสุด)', fmtN(r.rv)], ['พนักงานประจำไซต์', r.st ? r.st + ' คน' : ''], ['ค่าบริการต่อหัว/เดือน', r.ph ? fmtN(r.ph) + ' THB' : ''], ['พื้นที่', r.a ? fmtN(r.a) + ' sqm' : ''], ['ค่าบริการ THB/sqm', r.ts ? r.ts.toFixed(2) : ''], ['งานซ่อม/โปรเจกต์ YTD', r.pj ? fmtN(r.pj) + ' THB' : '']])}
@@ -735,11 +916,13 @@ function siteForm(s, isNew) {
     <label class="f" for="s_exp">วันหมดสัญญา (ถ้าทราบ)<input class="in" id="s_exp" type="date" name="expiry" value="${esc(s.expiry || '')}"><span class="hint">ใช้แทนการคาดการณ์</span></label></div>
   <div class="fg"><label class="f" for="s_stage">สถานะดีล<select class="in" id="s_stage" name="stage">${opt(STAGES, s.stage)}</select></label>
     <label class="f" for="s_owner">ผู้ดูแล (MKT)<select class="in" id="s_owner" name="owner">${opt(S.cfg.owners || [], s.owner, 1)}</select></label></div>
+  <fieldset class="f" style="border:0;padding:0;margin:0"><legend style="font-weight:600;margin-bottom:6px">บริการที่เสนอ (Business Model)</legend><div class="chips">${BIZ.map(b => `<label class="chip"><input type="checkbox" name="lines" value="${b.k}" ${linesOf(s).includes(b.k) ? 'checked' : ''}> ${esc(b.n)}</label>`).join('')}</div></fieldset>
   <label class="f" for="s_notes">หมายเหตุ<textarea class="in" id="s_notes" name="notes">${esc(s.notes || '')}</textarea></label>`;
 }
 function readSiteForm(fd) {
   const v = k => String(fd.get(k) || '').trim();
-  const p = { name: v('name'), seg: v('seg'), province: v('province'), sourcing: v('sourcing'), vendor: v('vendor'), scope: v('scope'), verified: !!fd.get('verified'), value: v('value') === '' ? null : +v('value').replace(/,/g, ''), start: v('start') || null, term: v('term') === '' ? null : +v('term'), expiry: v('expiry'), stage: v('stage'), owner: v('owner') };
+  const p = { name: v('name'), seg: v('seg'), province: v('province'), sourcing: v('sourcing'), vendor: v('vendor'), scope: v('scope'), verified: !!fd.get('verified'), value: v('value') === '' ? null : +v('value').replace(/,/g, ''), start: v('start') || null, term: v('term') === '' ? null : +v('term'), expiry: v('expiry'), stage: v('stage'), owner: v('owner'), lines: fd.getAll('lines').filter(k => BIZN[k]) };
+  if (!p.lines.length) throw new Error('เลือกบริการที่เสนออย่างน้อย 1 รายการ');
   if (!p.name) throw new Error('กรุณาใส่ชื่อไซต์');
   if (p.value != null && isNaN(p.value)) throw new Error('มูลค่าสัญญาต้องเป็นตัวเลข');
   if (p.term != null && (isNaN(p.term) || p.term <= 0)) throw new Error('อายุสัญญาต้องเป็นตัวเลขมากกว่า 0');
@@ -791,13 +974,17 @@ function render() {
   if ($('#dlg').open && !S._force) { S._pending = true; return; }
   const h = (location.hash || '#dash').slice(1);
   if (h.startsWith('site-')) vSite(h.slice(5));
-  else ({ dash: vDash, list: vList, board: vBoard, follow: vFollow, settings: vSettings }[h] || vDash)();
+  else ({ dash: vDash, list: vList, board: vBoard, follow: vFollow, biz: vBiz, settings: vSettings }[h] || vDash)();
   if (fid) { const el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); try { if (sel != null) el.setSelectionRange(sel, sel); } catch (e) { } } }
 }
 $('#dlg').addEventListener('close', () => { if (S._pending) { S._pending = false; render(); } });
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
 const ACT = {
   dashOwner: el => { S.dashOwner = el.dataset.v; vDash(); },
+  bizTab: el => { S.bizTab = el.dataset.v; if (location.hash !== '#biz') location.hash = '#biz'; else vBiz(); window.scrollTo(0, 0); },
+  cvEdit: el => cvEdit(el.dataset.k, el.dataset.b),
+  useAvg: el => { const i = $('#p_fm'); if (i) { i.value = el.dataset.v; i.focus(); } },
+  bizReset: () => saveConf('biz_params', {}, 'คืนค่าตาม Business Model แล้ว'),
   saveNow: el => saveNow(el),
   exportDash: () => { const own = S.dashOwner || ''; S.lastRows = allSites().filter(s => !own || s.owner === own).sort((a, b) => b.score - a.score); exportCSV(); },
   goYear: el => goList({ year: el.dataset.v }), goPrep: () => goList({ year: 'prep' }),
